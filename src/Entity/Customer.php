@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CustomerRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -32,11 +34,42 @@ class Customer
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $dwollaid;
+    private $bussinesname;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $bussinesname;
+    private $nationalite;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $motif;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $typeidentification;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $numeropiece;
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isverify=false;
+    /**
+     * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="customer")
+     */
+    private $transactions;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Contactcustomer::class, mappedBy="customer")
+     */
+    private $contactcustomers;
+
+    public function __construct()
+    {
+        $this->transactions = new ArrayCollection();
+        $this->contactcustomers = new ArrayCollection();
+    }
 
     /**
      * @return mixed
@@ -86,22 +119,6 @@ class Customer
         $this->email = $email;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDwollaid()
-    {
-        return $this->dwollaid;
-    }
-
-    /**
-     * @param mixed $dwollaid
-     */
-    public function setDwollaid($dwollaid): void
-    {
-        $this->dwollaid = $dwollaid;
-    }
-
     public function getId(): ?int
     {
         return $this->id;
@@ -115,6 +132,146 @@ class Customer
     public function setFirstname(?string $firstname): self
     {
         $this->firstname = $firstname;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNationalite()
+    {
+        return $this->nationalite;
+    }
+
+    /**
+     * @param mixed $nationalite
+     */
+    public function setNationalite($nationalite): void
+    {
+        $this->nationalite = $nationalite;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMotif()
+    {
+        return $this->motif;
+    }
+
+    /**
+     * @param mixed $motif
+     */
+    public function setMotif($motif): void
+    {
+        $this->motif = $motif;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTypeidentification()
+    {
+        return $this->typeidentification;
+    }
+
+    /**
+     * @param mixed $typeidentification
+     */
+    public function setTypeidentification($typeidentification): void
+    {
+        $this->typeidentification = $typeidentification;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumeropiece()
+    {
+        return $this->numeropiece;
+    }
+
+    /**
+     * @param mixed $numeropiece
+     */
+    public function setNumeropiece($numeropiece): void
+    {
+        $this->numeropiece = $numeropiece;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isIsverify(): bool
+    {
+        return $this->isverify;
+    }
+
+    /**
+     * @param bool $isverify
+     */
+    public function setIsverify(bool $isverify): void
+    {
+        $this->isverify = $isverify;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transaction $transaction): self
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transaction $transaction): self
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getCustomer() === $this) {
+                $transaction->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contactcustomer>
+     */
+    public function getContactcustomers(): Collection
+    {
+        return $this->contactcustomers;
+    }
+
+    public function addContactcustomer(Contactcustomer $contactcustomer): self
+    {
+        if (!$this->contactcustomers->contains($contactcustomer)) {
+            $this->contactcustomers[] = $contactcustomer;
+            $contactcustomer->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContactcustomer(Contactcustomer $contactcustomer): self
+    {
+        if ($this->contactcustomers->removeElement($contactcustomer)) {
+            // set the owning side to null (unless already changed)
+            if ($contactcustomer->getCustomer() === $this) {
+                $contactcustomer->setCustomer(null);
+            }
+        }
 
         return $this;
     }

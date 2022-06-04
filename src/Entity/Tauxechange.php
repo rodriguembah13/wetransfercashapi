@@ -37,6 +37,11 @@ class Tauxechange
      */
     private $montant2;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Zone::class)
+     */
+    private $zone;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,6 +91,18 @@ class Tauxechange
     public function setMontant2(?float $montant2): self
     {
         $this->montant2 = $montant2;
+
+        return $this;
+    }
+
+    public function getZone(): ?Zone
+    {
+        return $this->zone;
+    }
+
+    public function setZone(?Zone $zone): self
+    {
+        $this->zone = $zone;
 
         return $this;
     }

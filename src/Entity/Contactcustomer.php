@@ -27,11 +27,11 @@ class Contactcustomer
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $email;
+    private $phone;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $dwollaid;
+    private $email;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -55,10 +55,191 @@ class Contactcustomer
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    private $bankiban;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bankifsccode;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bankswiftcode;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bankrelaction;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $banknationalite;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bankbranchnumber;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $banksignature;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bankadressephysique;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
     private $bankid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="contactcustomers")
+     */
+    private $customer;
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param mixed $phone
+     */
+    public function setPhone($phone): void
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBankiban()
+    {
+        return $this->bankiban;
+    }
+
+    /**
+     * @param mixed $bankiban
+     */
+    public function setBankiban($bankiban): void
+    {
+        $this->bankiban = $bankiban;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBankifsccode()
+    {
+        return $this->bankifsccode;
+    }
+
+    /**
+     * @param mixed $bankifsccode
+     */
+    public function setBankifsccode($bankifsccode): void
+    {
+        $this->bankifsccode = $bankifsccode;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBankswiftcode()
+    {
+        return $this->bankswiftcode;
+    }
+
+    /**
+     * @param mixed $bankswiftcode
+     */
+    public function setBankswiftcode($bankswiftcode): void
+    {
+        $this->bankswiftcode = $bankswiftcode;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBankrelaction()
+    {
+        return $this->bankrelaction;
+    }
+
+    /**
+     * @param mixed $bankrelaction
+     */
+    public function setBankrelaction($bankrelaction): void
+    {
+        $this->bankrelaction = $bankrelaction;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBanknationalite()
+    {
+        return $this->banknationalite;
+    }
+
+    /**
+     * @param mixed $banknationalite
+     */
+    public function setBanknationalite($banknationalite): void
+    {
+        $this->banknationalite = $banknationalite;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBankbranchnumber()
+    {
+        return $this->bankbranchnumber;
+    }
+
+    /**
+     * @param mixed $bankbranchnumber
+     */
+    public function setBankbranchnumber($bankbranchnumber): void
+    {
+        $this->bankbranchnumber = $bankbranchnumber;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBanksignature()
+    {
+        return $this->banksignature;
+    }
+
+    /**
+     * @param mixed $banksignature
+     */
+    public function setBanksignature($banksignature): void
+    {
+        $this->banksignature = $banksignature;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBankadressephysique()
+    {
+        return $this->bankadressephysique;
+    }
+
+    /**
+     * @param mixed $bankadressephysique
+     */
+    public function setBankadressephysique($bankadressephysique): void
+    {
+        $this->bankadressephysique = $bankadressephysique;
     }
 
     /**
@@ -123,22 +304,6 @@ class Contactcustomer
     public function setEmail($email): void
     {
         $this->email = $email;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDwollaid()
-    {
-        return $this->dwollaid;
-    }
-
-    /**
-     * @param mixed $dwollaid
-     */
-    public function setDwollaid($dwollaid): void
-    {
-        $this->dwollaid = $dwollaid;
     }
 
     /**
@@ -219,6 +384,18 @@ class Contactcustomer
     public function setBanktype($banktype): void
     {
         $this->banktype = $banktype;
+    }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?Customer $customer): self
+    {
+        $this->customer = $customer;
+
+        return $this;
     }
 
 }

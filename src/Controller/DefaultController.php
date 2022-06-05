@@ -96,16 +96,28 @@ class DefaultController extends AbstractFOSRestController
         if (is_null($user)) {
             throw new InvalidArgumentException("Resource not found", 400);
         }
-        $customer = $user->getCustomer();
+
         if (!$data['customerverify']) {
+            $customer = $user->getCustomer();
+            $customer->setFirstname($data['firstName']);
+            $customer->setLastname($data['lastName']);
+            $customer->setEmail($data['email']);
+            $customer->setPhone($data['phone']);
             $customer->setMotif($data['motif']);
             $customer->setNationalite($data['nationalite']);
             $customer->setNumeropiece($data['numeropiece']);
             $customer->setTypeidentification($data['typeidentification']);
             $customer->setIsverify(true);
+        }else{
+            $customer=$this->customerRepository->find($data['customer']);
         }
         if ($data['beneficiareexist']) {
-            $beneficiare = $this->beneficiareRepository->find(3);
+            $beneficiare = $this->beneficiareRepository->find($data['beneficiare']);
+            if ($data['t_typetransaction']=="cardbank"){
+                $transaction->setTypetransaction("bancaire");
+            }else{
+                $transaction->setTypetransaction($data['t_typetransaction']);
+            }
         } else {
             $beneficiare = new Contactcustomer();
             $beneficiare->setEmail($data['b_email']);
@@ -136,6 +148,7 @@ class DefaultController extends AbstractFOSRestController
         }
         $transaction->setBeneficiare($beneficiare);
         $transaction->setCustomer($customer);
+        $transaction->setDatetransaction(new \DateTime('now',new \DateTimeZone('Africa/Brazzaville')));
         $this->em->persist($transaction);
         $this->em->flush();
         $view = $this->view(['numero'=>$transaction->getNumerotransaction()], Response::HTTP_OK, []);
@@ -157,10 +170,10 @@ class DefaultController extends AbstractFOSRestController
             'numerocompte'=>$transaction->getBeneficiare()->getBankaccountnumber(),
             'montant'=>$transaction->getMontant(),
             'frais'=>$transaction->getId(),
-            'pays'=>$transaction->getCountry(),
+            'pays'=>$transaction->getCountry()->getLibelle(),
             'motif'=>$transaction->getCustomer()->getMotif(),
             'montanttotal'=>$transaction->getMontant(),
-            'datetransaction'=>$transaction->getDatetransaction(),
+            'datetransaction'=>$transaction->getDatetransaction()->format('Y-m-d H:m:s'),
             'b_name'=>$transaction->getBeneficiare()->getFirstname(),
             'b_lastname'=>$transaction->getBeneficiare()->getLastname(),
             'b_phone'=>$transaction->getBeneficiare()->getPhone(),
@@ -182,7 +195,7 @@ class DefaultController extends AbstractFOSRestController
             $last = $this->transactionRepository->findOneByLast()->getId();
         }
         $transaction_numero = '';
-        $allowed_characters = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 0);
+        $allowed_characters = array(1, 2, 3, 4, 5, 6, 7, 8, 9);
         for ($i = 1; $i <= 12; $i++) {
             $transaction_numero .= $allowed_characters[rand(0, count($allowed_characters) - 1)];
         }

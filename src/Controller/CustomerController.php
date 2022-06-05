@@ -46,7 +46,7 @@ class CustomerController extends AbstractFOSRestController
      */
     public function index(): Response
     {
-        $customers=[];
+        $customers=$this->customerRepository->findAll();
         $view = $this->view($customers, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
@@ -96,11 +96,8 @@ class CustomerController extends AbstractFOSRestController
     public function getCustomerbyUser($id): Response
     {
         $this->logger->info($id);
-        $user=$this->userRepository->find($id);
-        $view = $this->view([
-            'customer'=>$user->getCustomer(),
-            'contacts'=>$user->getCustomer()->getContactcustomers()
-        ], Response::HTTP_OK, []);
+        $customer=$this->customerRepository->find($id);
+        $view = $this->view($customer->getContactcustomers(), Response::HTTP_OK, []);
         return $this->handleView($view);
     }
 }

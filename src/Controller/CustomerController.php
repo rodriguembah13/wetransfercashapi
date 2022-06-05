@@ -26,7 +26,11 @@ class CustomerController extends AbstractFOSRestController
 
     /**
      * CustomerController constructor.
-     * @param $customerService
+     * @param UserRepository $userRepository
+     * @param ContactcustomerRepository $contatRepository
+     * @param CustomerRepository $customerRepository
+     * @param LoggerInterface $logger
+     * @param CustomerService $customerService
      */
     public function __construct(UserRepository $userRepository,ContactcustomerRepository $contatRepository,CustomerRepository $customerRepository,LoggerInterface $logger,CustomerService $customerService)
     {

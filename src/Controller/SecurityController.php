@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Customer;
 use App\Entity\Employe;
 use App\Entity\User;
 use App\Exception\FormException;
@@ -12,6 +13,8 @@ use App\Repository\UserRepository;
 use App\Service\AuthyHelper;
 use App\Service\VerifyService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\Exception\InvalidCustomGenerator;
+use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
@@ -237,7 +240,7 @@ class SecurityController extends AbstractFOSRestController
      * @param Request $request
      * @param JWTEncoderInterface $JWTEncoder
      * @return Response
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      * @throws JWTEncodeFailureException
      */
     public function postLoginAction(Request $request)
@@ -315,6 +318,40 @@ class SecurityController extends AbstractFOSRestController
         return $this->handleView($view);
     }
 
+    /**
+     * @Rest\Post("/auth/signin",name="appsignup",)
+     * @param Request $request
+     * @return Response
+     * @throws InvalidCustomGenerator
+     */
+    public function postSingUpAction(Request $request)
+    {
+        $body = json_decode($request->getContent(), true);
+        $user=$this->userRepository->findOneBy(['email'=>$body['email']]);
+        if (!is_null($user)){
+            throw new InvalidCustomGenerator("Resource not found");
+        }
+        $customer=new Customer();
+        $customer->setFirstname($body['firstname']);
+        $customer->setLastname($body['lastname']);
+        $customer->setEmail($body['email']);
+        $customer->setPhone($body['phone']);
+        $this->em->persist($customer);
+        $user=new User();
+        $user->setPhone($body['phone']);
+        $user->setEmail($body['email']);
+        $user->setName($body['firstname']);
+        $user->setLastname($body['lastname']);
+        $user->setRoles(['ROLE_CUSTOMER']);
+        $plainPassword = $body['password'];
+        $hashedPassword = $this->encoder->hashPassword($user, $plainPassword);
+        $user->setPassword($hashedPassword);
+        $this->em->persist($user);
+        $customer->setCompte($user);
+        $this->em->flush();
+        $view = $this->view($customer, Response::HTTP_OK);
+        return $this->handleView($view);
+    }
     /**
      * @Rest\Post("/auth/resendotp/{id}",name="resendotp",)
      */

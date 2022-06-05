@@ -44,7 +44,15 @@ class TransactionRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
-
+    public function findOneByLast()
+    {
+        return $this->createQueryBuilder('s')
+            ->setMaxResults(1)
+            ->orderBy('s.id', 'DESC')
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
     // /**
     //  * @return Transaction[] Returns an array of Transaction objects
     //  */

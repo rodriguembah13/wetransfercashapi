@@ -31,6 +31,22 @@ class Transaction
      */
     private $montant;
     /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $fraisenvoi;
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $montanttotal;
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $datetransaction;
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $raisontransaction;
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $modetransfert;
@@ -43,9 +59,17 @@ class Transaction
      */
     private $typeservice;
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\ManyToOne(targetEntity=Country::class")
      */
     private $country;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $numerotransaction;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $typetransaction;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -54,6 +78,22 @@ class Transaction
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTypetransaction()
+    {
+        return $this->typetransaction;
+    }
+
+    /**
+     * @param mixed $typetransaction
+     */
+    public function setTypetransaction($typetransaction): void
+    {
+        $this->typetransaction = $typetransaction;
     }
 
     /**
@@ -70,6 +110,86 @@ class Transaction
     public function setCountry($country): void
     {
         $this->country = $country;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumerotransaction()
+    {
+        return $this->numerotransaction;
+    }
+
+    /**
+     * @param mixed $numerotransaction
+     */
+    public function setNumerotransaction($numerotransaction): void
+    {
+        $this->numerotransaction = $numerotransaction;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFraisenvoi()
+    {
+        return $this->fraisenvoi;
+    }
+
+    /**
+     * @param mixed $fraisenvoi
+     */
+    public function setFraisenvoi($fraisenvoi): void
+    {
+        $this->fraisenvoi = $fraisenvoi;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMontanttotal()
+    {
+        return $this->montanttotal;
+    }
+
+    /**
+     * @param mixed $montanttotal
+     */
+    public function setMontanttotal($montanttotal): void
+    {
+        $this->montanttotal = $montanttotal;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDatetransaction()
+    {
+        return $this->datetransaction;
+    }
+
+    /**
+     * @param mixed $datetransaction
+     */
+    public function setDatetransaction($datetransaction): void
+    {
+        $this->datetransaction = $datetransaction;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRaisontransaction()
+    {
+        return $this->raisontransaction;
+    }
+
+    /**
+     * @param mixed $raisontransaction
+     */
+    public function setRaisontransaction($raisontransaction): void
+    {
+        $this->raisontransaction = $raisontransaction;
     }
 
     /**

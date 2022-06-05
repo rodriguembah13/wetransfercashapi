@@ -3,6 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Contactcustomer;
+use App\Entity\User;
+use App\Repository\ContactcustomerRepository;
+use App\Repository\CustomerRepository;
+use App\Repository\UserRepository;
 use App\Service\Scripe\CustomerService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -15,16 +19,22 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomerController extends AbstractFOSRestController
 {
     private $customerService;
+    private $customerRepository;
+    private $contatRepository;
+    private $userRepository;
     private $logger;
 
     /**
      * CustomerController constructor.
      * @param $customerService
      */
-    public function __construct(LoggerInterface $logger,CustomerService $customerService)
+    public function __construct(UserRepository $userRepository,ContactcustomerRepository $contatRepository,CustomerRepository $customerRepository,LoggerInterface $logger,CustomerService $customerService)
     {
         $this->customerService = $customerService;
         $this->logger=$logger;
+        $this->contatRepository=$contatRepository;
+        $this->customerRepository=$customerRepository;
+        $this->userRepository=$userRepository;
     }
 
     /**
@@ -73,17 +83,20 @@ class CustomerController extends AbstractFOSRestController
         $view = $this->view($contact, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
+
     /**
-     * @Rest\Post("/v1/transferts", name="app_customer_new_transfert")
-     * @param Request $request
+     * @Rest\Get("/v1/customers/{id}/user", name="app_getcustomerbyuser")
+     * @param User $user
      * @return Response
      */
-    public function createTransfert(Request $request): Response
+    public function getCustomerbyUser($id): Response
     {
-        $res = json_decode($request->getContent(), true);
-        $data=$res['data'];
-        $contact=$this->customerService->createTransfert($data);
-        $view = $this->view($contact, Response::HTTP_OK, []);
+        $this->logger->info($id);
+        $user=$this->userRepository->find($id);
+        $view = $this->view([
+            'customer'=>$user->getCustomer(),
+            'contacts'=>$user->getCustomer()->getContactcustomers()
+        ], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
 }

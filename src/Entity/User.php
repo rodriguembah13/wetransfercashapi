@@ -62,6 +62,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string",nullable=true)
      */
     private ?string $photo;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Customer::class, mappedBy="compte", cascade={"persist", "remove"})
+     */
+    private $customer;
     public function getId(): ?int
     {
         return $this->id;
@@ -258,5 +263,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?Customer $customer): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($customer === null && $this->customer !== null) {
+            $this->customer->setCompte(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($customer !== null && $customer->getCompte() !== $this) {
+            $customer->setCompte($this);
+        }
+
+        $this->customer = $customer;
+
+        return $this;
     }
 }

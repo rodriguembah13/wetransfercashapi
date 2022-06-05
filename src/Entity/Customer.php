@@ -76,7 +76,7 @@ class Customer
     private $phone;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Country::class")
+     * @ORM\ManyToOne(targetEntity=Country::class)
      */
     private $country;
 

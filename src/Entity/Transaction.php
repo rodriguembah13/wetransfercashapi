@@ -59,7 +59,7 @@ class Transaction
      */
     private $typeservice;
     /**
-     * @ORM\ManyToOne(targetEntity=Country::class")
+     * @ORM\ManyToOne(targetEntity=Country::class)
      */
     private $country;
     /**

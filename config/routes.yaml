@@ -8,11 +8,11 @@
 #  name_prefix: v1_
 #  defaults: {_format: json}
 
-default:
-  type: rest
-  resource: App\Controller\DefaultController
-  prefix: /v1
-  name_prefix: v1_
-  defaults: {_format: json}
+#default:
+#  type: rest
+#  resource: App\Controller\DefaultController
+#  prefix: /v1
+#  name_prefix: v1_
+#  defaults: {_format: json}
 api_login_check:
   path: /auth/login_check

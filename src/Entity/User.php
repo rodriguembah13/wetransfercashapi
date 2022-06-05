@@ -61,7 +61,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string",nullable=true)
      */
-    private ?string $photo;
+    private $photo;
 
     /**
      * @ORM\OneToOne(targetEntity=Customer::class, mappedBy="compte", cascade={"persist", "remove"})
@@ -72,17 +72,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-
-    public function getPhoto(): ?string
+    /**
+     * @return mixed
+     */
+    public function getPhoto()
     {
         return $this->photo;
     }
 
-
-    public function setPhoto(string $photo): self
+    /**
+     * @param mixed $photo
+     */
+    public function setPhoto($photo): void
     {
         $this->photo = $photo;
-        return $this;
     }
 
     public function getEmail(): ?string

@@ -341,6 +341,7 @@ class SecurityController extends AbstractFOSRestController
         $user->setPhone($body['phone']);
         $user->setEmail($body['email']);
         $user->setName($body['firstname']);
+        $user->setPhone("image");
         $user->setLastname($body['lastname']);
         $user->setRoles(['ROLE_CUSTOMER']);
         $plainPassword = $body['password'];

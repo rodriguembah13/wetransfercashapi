@@ -33,7 +33,7 @@ class Grilletarifaire
     private $frais;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\ManyToOne(targetEntity=Zone::class)
      */
     private $zone;
 
@@ -78,15 +78,21 @@ class Grilletarifaire
         return $this;
     }
 
-    public function getZone(): ?string
+    /**
+     * @return mixed
+     */
+    public function getZone()
     {
         return $this->zone;
     }
 
-    public function setZone(?string $zone): self
+    /**
+     * @param mixed $zone
+     */
+    public function setZone($zone): void
     {
         $this->zone = $zone;
-
-        return $this;
     }
+
+
 }

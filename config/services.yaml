@@ -13,6 +13,7 @@ parameters:
     DWOLLA_PUBLIC: '%env(DWOLLA_PUBLIC)%'
     DWOLLA_SECRET: '%env(DWOLLA_SECRET)%'
     DWOLLA_URL: '%env(DWOLLA_URL)%'
+    domain: '%env(resolve:BASE_DOMAIN)%'
 
 services:
     # default configuration for services in *this* file

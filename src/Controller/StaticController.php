@@ -25,6 +25,7 @@ class StaticController extends AbstractFOSRestController
     private $countryRepository;
     private $zoneRepository;
     private EntityManagerInterface $em;
+    private $params;
     /**
      * StaticController constructor.
      * @param $grilletarifaireRepository
@@ -73,6 +74,16 @@ class StaticController extends AbstractFOSRestController
     {
         $tauxechanges=$this->tauxRepository->findAll();
         $view = $this->view($tauxechanges, Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
+    /**
+     * @Rest\Get("/v1/tauxechanges/{id}/country", name="app_tauxechange_country")
+     */
+    public function tauxechangecountry($id): Response
+    {
+        $country=$this->countryRepository->find($id);
+        $tauxechange=$this->tauxRepository->findOneBy(['zone'=>$country->getZone()]);
+        $view = $this->view($tauxechange, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
     /**
@@ -144,6 +155,16 @@ class StaticController extends AbstractFOSRestController
             $zone=$this->zoneRepository->find($data['zone']);
             $country->setZone($zone);
         }
+        if (!empty($data['flag'])){
+            $image_parts = explode(";base64,", $data['flag']);
+            $image_base64 = base64_decode($image_parts[1]);
+            $imagename=uniqid() . '.png';
+            $destination = $this->getParameter('kernel.project_dir').'/public/uploads/';
+            $file = $destination . $imagename;
+            if (file_put_contents($file, $image_base64)){
+                $country->setFlag($this->getParameter('domain').$imagename);
+            }
+        }
         $country->setCode($data['code']);
         $country->setMonaire($data['monaire']);
         $this->em->persist($country);
@@ -168,7 +189,8 @@ class StaticController extends AbstractFOSRestController
         $grille->setFrais($data['frais']);
         $grille->setTrancheA($data['tranche_a']);
         $grille->setTrancheB($data['tranche_b']);
-        $grille->setZone($data['zone']);
+        $zone=$this->zoneRepository->find($data['zone']);
+        $grille->setZone($zone);
         $this->em->persist($grille);
         $this->em->flush();
         $view = $this->view($grille, Response::HTTP_OK, []);

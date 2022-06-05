@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contactcustomer;
+use App\Entity\Customer;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Entity\Zone;
@@ -17,6 +18,7 @@ use Doctrine\ORM\Mapping\Exception\InvalidCustomGenerator;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use http\Exception\InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,6 +33,7 @@ class DefaultController extends AbstractFOSRestController
     private $userRepository;
     private $transactionRepository;
     private $countryRepository;
+    private $logger;
 
     /**
      * DefaultController constructor.
@@ -41,7 +44,7 @@ class DefaultController extends AbstractFOSRestController
      * @param EntityManagerInterface $entityManager
      * @param EmployeRepository $employeRepository
      */
-    public function __construct(CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
+    public function __construct(LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
                                 ContactcustomerRepository $contactcustomerRepository, EntityManagerInterface $entityManager, EmployeRepository $employeRepository)
     {
         $this->employeRepository = $employeRepository;
@@ -51,6 +54,7 @@ class DefaultController extends AbstractFOSRestController
         $this->userRepository = $userRepository;
         $this->transactionRepository = $transactionRepository;
         $this->countryRepository=$countryRepository;
+        $this->logger=$logger;
     }
 
     /**
@@ -98,7 +102,7 @@ class DefaultController extends AbstractFOSRestController
         }
 
         if (!$data['customerverify']) {
-            $customer = $user->getCustomer();
+            $customer = new Customer();
             $customer->setFirstname($data['firstName']);
             $customer->setLastname($data['lastName']);
             $customer->setEmail($data['email']);
@@ -108,10 +112,12 @@ class DefaultController extends AbstractFOSRestController
             $customer->setNumeropiece($data['numeropiece']);
             $customer->setTypeidentification($data['typeidentification']);
             $customer->setIsverify(true);
+            $this->em->persist($customer);
         }else{
             $customer=$this->customerRepository->find($data['customer']);
         }
-        if ($data['beneficiareexist']) {
+        $this->logger->info("je suis ici");
+        if (!empty($data['beneficiareexist'])) {
             $beneficiare = $this->beneficiareRepository->find($data['beneficiare']);
             if ($data['t_typetransaction']=="cardbank"){
                 $transaction->setTypetransaction("bancaire");
@@ -136,7 +142,7 @@ class DefaultController extends AbstractFOSRestController
                 $beneficiare->setBankswiftcode($data['b_bankswiftcode']);
                 $beneficiare->setBankrelaction($data['b_relaction']);
                 $beneficiare->setBanksignature($data['b_banksignature']);
-                if ($data['b_bankname']){
+                if (!empty($data['b_bankname'])){
                     $beneficiare->setBankname($data['b_bankname']);
                 }
             }else{

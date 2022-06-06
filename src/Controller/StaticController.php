@@ -87,6 +87,15 @@ class StaticController extends AbstractFOSRestController
         return $this->handleView($view);
     }
     /**
+     * @Rest\Get("/v1/tauxechanges/default", name="app_tauxechange_default")
+     */
+    public function tauxechangebydefault(): Response
+    {
+        $tauxechange=$this->tauxRepository->findOneBy(['code'=>"XAF"]);
+        $view = $this->view($tauxechange, Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
+    /**
      * @Rest\Post("/v1/tauxechanges", name="app_tauxechange_new")
      * @param Request $request
      * @return Response
@@ -157,13 +166,16 @@ class StaticController extends AbstractFOSRestController
         }
         if (!empty($data['flag'])){
             $image_parts = explode(";base64,", $data['flag']);
-            $image_base64 = base64_decode($image_parts[1]);
-            $imagename=uniqid() . '.png';
-            $destination = $this->getParameter('kernel.project_dir').'/public/uploads/';
-            $file = $destination . $imagename;
-            if (file_put_contents($file, $image_base64)){
-                $country->setFlag($this->getParameter('domain').$imagename);
+            if (sizeof($image_parts)>1){
+                $image_base64 = base64_decode($image_parts[1]);
+                $imagename=uniqid() . '.png';
+                $destination = $this->getParameter('kernel.project_dir').'/public/uploads/';
+                $file = $destination . $imagename;
+                if (file_put_contents($file, $image_base64)){
+                    $country->setFlag($this->getParameter('domain').$imagename);
+                }
             }
+
         }
         $country->setCode($data['code']);
         $country->setMonaire($data['monaire']);

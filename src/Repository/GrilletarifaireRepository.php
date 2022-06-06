@@ -68,10 +68,11 @@ class GrilletarifaireRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('g')
             ->andWhere('g.zone = :zone')
-            ->andWhere('g.trancheA <= :val')
-            ->andWhere('g.trancheB > :val')
+            ->andWhere('g.trancheA < :val')
+            ->andWhere('g.trancheB >= :val')
             ->setParameter('zone', $zone)
             ->setParameter('val', $value)
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
         ;

@@ -103,8 +103,9 @@ class StaticController extends AbstractFOSRestController
      */
     public function grilletarifairebyamount($amount,$country_id): Response
     {
-        //$this->logger->info($amount.'------------------');
+        $this->logger->info($amount.'------------------');
         $country=$this->countryRepository->find($country_id);
+        $this->logger->info($country->getZone()->getId().'------------------');
         $frais=$this->grilletarifaireRepository->findOneByZoneandaount($country->getZone(),$amount);
         $view = $this->view([
             'frais'=>$frais->getFrais(),

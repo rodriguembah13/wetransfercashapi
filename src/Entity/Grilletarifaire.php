@@ -18,12 +18,12 @@ class Grilletarifaire
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="float", length=255, nullable=true)
      */
     private $trancheA;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="float", length=255, nullable=true)
      */
     private $trancheB;
 
@@ -42,24 +42,24 @@ class Grilletarifaire
         return $this->id;
     }
 
-    public function getTrancheA(): ?string
+    public function getTrancheA(): ?float
     {
         return $this->trancheA;
     }
 
-    public function setTrancheA(?string $trancheA): self
+    public function setTrancheA(?float $trancheA): self
     {
         $this->trancheA = $trancheA;
 
         return $this;
     }
 
-    public function getTrancheB(): ?string
+    public function getTrancheB(): ?float
     {
         return $this->trancheB;
     }
 
-    public function setTrancheB(?string $trancheB): self
+    public function setTrancheB(?float $trancheB): self
     {
         $this->trancheB = $trancheB;
 

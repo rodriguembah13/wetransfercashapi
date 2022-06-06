@@ -62,15 +62,19 @@ class GrilletarifaireRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Grilletarifaire
+
+    public function findOneByZoneandaount($zone,$value): ?Grilletarifaire
     {
+        $value=2600;
         return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
+            ->andWhere('g.zone = :zone')
+            ->andWhere('g.trancheA <= :val')
+            ->andWhere('g.trancheB > :val')
+            ->setParameter('zone', $zone)
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
+    /* */
 }

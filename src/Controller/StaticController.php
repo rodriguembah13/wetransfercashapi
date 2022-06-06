@@ -91,6 +91,24 @@ class StaticController extends AbstractFOSRestController
         ], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
+
+    /**
+     * @Rest\Get("/v1/grilletarifaires/{amount}/{country_id}/frais", name="app_grilletarifaire_frais")
+     * @param $amount
+     * @param $country_id
+     * @return Response
+     */
+    public function grilletarifairebyamount($amount,$country_id): Response
+    {
+        $country=$this->countryRepository->find($country_id);
+        $frais=$this->grilletarifaireRepository->findOneByZoneandaount($country->getZone(),$amount);
+        $view = $this->view([
+            'frais'=>$frais->getFrais(),
+            'tranche_a'=>$frais->getTrancheA(),
+            'tranche_b'=>$frais->getTrancheB()
+        ], Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
     /**
      * @Rest\Get("/v1/tauxechanges/default", name="app_tauxechange_default")
      */

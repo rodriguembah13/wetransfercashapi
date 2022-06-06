@@ -65,7 +65,6 @@ class GrilletarifaireRepository extends ServiceEntityRepository
 
     public function findOneByZoneandaount($zone,$value): ?Grilletarifaire
     {
-        $value=2600;
         return $this->createQueryBuilder('g')
             ->andWhere('g.zone = :zone')
             ->andWhere('g.trancheA <= :val')

@@ -82,8 +82,13 @@ class StaticController extends AbstractFOSRestController
     public function tauxechangecountry($id): Response
     {
         $country=$this->countryRepository->find($id);
+        $tauxexafusd=$this->tauxRepository->findOneBy(['code'=>"XAF"]);
         $tauxechange=$this->tauxRepository->findOneBy(['zone'=>$country->getZone()]);
-        $view = $this->view($tauxechange, Response::HTTP_OK, []);
+        $view = $this->view([
+            'taux_xaf_usd'=>$tauxexafusd->getMontant(),
+            'tauxcountry'=> $tauxechange->getMontant(),
+            'monaire'=>$tauxechange->getSymbole()
+        ], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
     /**

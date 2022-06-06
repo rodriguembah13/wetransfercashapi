@@ -15,6 +15,7 @@ use App\Repository\ZoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -26,18 +27,20 @@ class StaticController extends AbstractFOSRestController
     private $zoneRepository;
     private EntityManagerInterface $em;
     private $params;
+    private $logger;
     /**
      * StaticController constructor.
      * @param $grilletarifaireRepository
      * @param $tauxRepository
      */
-    public function __construct(CountryRepository $countryRepository,ZoneRepository $zoneRepository,EntityManagerInterface $entityManager,GrilletarifaireRepository $grilletarifaireRepository, TauxechangeRepository $tauxRepository)
+    public function __construct(LoggerInterface $logger,CountryRepository $countryRepository,ZoneRepository $zoneRepository,EntityManagerInterface $entityManager,GrilletarifaireRepository $grilletarifaireRepository, TauxechangeRepository $tauxRepository)
     {
         $this->grilletarifaireRepository = $grilletarifaireRepository;
         $this->tauxRepository = $tauxRepository;
         $this->countryRepository=$countryRepository;
         $this->zoneRepository=$zoneRepository;
         $this->em=$entityManager;
+        $this->logger=$logger;
     }
 
     /**
@@ -100,6 +103,7 @@ class StaticController extends AbstractFOSRestController
      */
     public function grilletarifairebyamount($amount,$country_id): Response
     {
+        //$this->logger->info($amount.'------------------');
         $country=$this->countryRepository->find($country_id);
         $frais=$this->grilletarifaireRepository->findOneByZoneandaount($country->getZone(),$amount);
         $view = $this->view([

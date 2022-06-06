@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Grilletarifaire;
+use App\Entity\Zone;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -63,7 +64,7 @@ class GrilletarifaireRepository extends ServiceEntityRepository
     */
 
 
-    public function findOneByZoneandaount($zone,$value): ?Grilletarifaire
+    public function findOneByZoneandaount(Zone $zone,$value): ?Grilletarifaire
     {
         return $this->createQueryBuilder('g')
             ->andWhere('g.zone = :zone')

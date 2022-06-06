@@ -32,7 +32,8 @@ class CustomerController extends AbstractFOSRestController
      * @param LoggerInterface $logger
      * @param CustomerService $customerService
      */
-    public function __construct(UserRepository $userRepository,ContactcustomerRepository $contatRepository,CustomerRepository $customerRepository,LoggerInterface $logger,CustomerService $customerService)
+    public function __construct(UserRepository $userRepository,ContactcustomerRepository $contatRepository,CustomerRepository $customerRepository
+        ,LoggerInterface $logger,CustomerService $customerService)
     {
         $this->customerService = $customerService;
         $this->logger=$logger;

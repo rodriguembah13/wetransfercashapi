@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Transaction
 {
+    public const ENVALIDATION="en validation";
+    public const VALIDATION="validation";
+    public const EFFECTUE="effectue";
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -74,10 +77,30 @@ class Transaction
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $prestateurservice;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $status=self::ENVALIDATION;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
     }
 
     /**
@@ -96,20 +119,17 @@ class Transaction
         $this->typetransaction = $typetransaction;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCountry()
+
+    public function getCountry(): ?Country
     {
         return $this->country;
     }
 
-    /**
-     * @param mixed $country
-     */
-    public function setCountry($country): void
+
+    public function setCountry(?Country $country): self
     {
         $this->country = $country;
+        return $this;
     }
 
     /**

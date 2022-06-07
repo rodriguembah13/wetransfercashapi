@@ -11,6 +11,7 @@ use App\Repository\ContactcustomerRepository;
 use App\Repository\CountryRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\EmployeRepository;
+use App\Repository\GrilletarifaireRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +35,7 @@ class DefaultController extends AbstractFOSRestController
     private $transactionRepository;
     private $countryRepository;
     private $logger;
+    private $grilleRepository;
 
     /**
      * DefaultController constructor.
@@ -44,7 +46,7 @@ class DefaultController extends AbstractFOSRestController
      * @param EntityManagerInterface $entityManager
      * @param EmployeRepository $employeRepository
      */
-    public function __construct(LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
+    public function __construct(GrilletarifaireRepository $grilleRepository,LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
                                 ContactcustomerRepository $contactcustomerRepository, EntityManagerInterface $entityManager, EmployeRepository $employeRepository)
     {
         $this->employeRepository = $employeRepository;
@@ -55,6 +57,7 @@ class DefaultController extends AbstractFOSRestController
         $this->transactionRepository = $transactionRepository;
         $this->countryRepository=$countryRepository;
         $this->logger=$logger;
+        $this->grilleRepository=$grilleRepository;
     }
 
     /**
@@ -96,6 +99,7 @@ class DefaultController extends AbstractFOSRestController
         $transaction->setPrestateurservice($data['t_prestateurservice']);
         $transaction->setTypeservice($data['t_typeservice']);
         $transaction->setRaisontransaction($data['t_raisontransaction']);
+        $transaction->setFraisenvoi($data['t_frais']);
         $user = $this->userRepository->find($data['user']);
         if (is_null($user)) {
             throw new InvalidArgumentException("Resource not found", 400);
@@ -155,6 +159,7 @@ class DefaultController extends AbstractFOSRestController
         $transaction->setBeneficiare($beneficiare);
         $transaction->setCustomer($customer);
         $transaction->setDatetransaction(new \DateTime('now',new \DateTimeZone('Africa/Brazzaville')));
+        $transaction->setStatus(Transaction::ENVALIDATION);
         $this->em->persist($transaction);
         $this->em->flush();
         $view = $this->view(['numero'=>$transaction->getNumerotransaction()], Response::HTTP_OK, []);
@@ -170,15 +175,16 @@ class DefaultController extends AbstractFOSRestController
     public function getTransaction($id): Response
     {
         $transaction = $this->transactionRepository->findOneBy(['numerotransaction'=>$id]);
+        $grille=$this->grilleRepository->findOneBy(['zone'=>$transaction->getCountry()->getZone(),'frais'=>$transaction->getFraisenvoi()]);
         $transaction_ = [
             'numero' => $transaction->getNumerotransaction(),
             'type' => $transaction->getTypetransaction(),
             'numerocompte'=>$transaction->getBeneficiare()->getBankaccountnumber(),
             'montant'=>$transaction->getMontant(),
-            'frais'=>$transaction->getId(),
+            'frais'=>$transaction->getFraisenvoi(),
             'pays'=>$transaction->getCountry()->getLibelle(),
             'motif'=>$transaction->getCustomer()->getMotif(),
-            'montanttotal'=>$transaction->getMontant(),
+            'montanttotal'=>$transaction->getMontanttotal(),
             'datetransaction'=>$transaction->getDatetransaction()->format('Y-m-d H:m:s'),
             'b_name'=>$transaction->getBeneficiare()->getFirstname(),
             'b_lastname'=>$transaction->getBeneficiare()->getLastname(),
@@ -188,6 +194,9 @@ class DefaultController extends AbstractFOSRestController
             'e_name'=>$transaction->getCustomer()->getFirstname(),
             'e_lastname'=>$transaction->getCustomer()->getLastname(),
             'e_phone'=>$transaction->getCustomer()->getPhone(),
+            'zonetransaction'=>$transaction->getCountry()->getZone()->getLibelle(),
+            'monaire'=>$transaction->getCountry()->getMonaire(),
+            'grille'=>is_null($grille)?" ": $grille->getTrancheA().' - '.$grille->getTrancheB(),
         ];
         $view = $this->view($transaction_, Response::HTTP_OK, []);
         return $this->handleView($view);

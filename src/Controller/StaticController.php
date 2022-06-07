@@ -8,6 +8,7 @@ use App\Entity\Country;
 use App\Entity\Grilletarifaire;
 use App\Entity\Tauxechange;
 use App\Entity\Zone;
+use App\Repository\ConfigurationRepository;
 use App\Repository\CountryRepository;
 use App\Repository\GrilletarifaireRepository;
 use App\Repository\TauxechangeRepository;
@@ -28,12 +29,19 @@ class StaticController extends AbstractFOSRestController
     private EntityManagerInterface $em;
     private $params;
     private $logger;
+    private $configurationRepository;
+
     /**
      * StaticController constructor.
-     * @param $grilletarifaireRepository
-     * @param $tauxRepository
+     * @param ConfigurationRepository $configurationRepository
+     * @param LoggerInterface $logger
+     * @param CountryRepository $countryRepository
+     * @param ZoneRepository $zoneRepository
+     * @param EntityManagerInterface $entityManager
+     * @param GrilletarifaireRepository $grilletarifaireRepository
+     * @param TauxechangeRepository $tauxRepository
      */
-    public function __construct(LoggerInterface $logger,CountryRepository $countryRepository,ZoneRepository $zoneRepository,EntityManagerInterface $entityManager,GrilletarifaireRepository $grilletarifaireRepository, TauxechangeRepository $tauxRepository)
+    public function __construct(ConfigurationRepository $configurationRepository,LoggerInterface $logger,CountryRepository $countryRepository,ZoneRepository $zoneRepository,EntityManagerInterface $entityManager,GrilletarifaireRepository $grilletarifaireRepository, TauxechangeRepository $tauxRepository)
     {
         $this->grilletarifaireRepository = $grilletarifaireRepository;
         $this->tauxRepository = $tauxRepository;
@@ -41,6 +49,7 @@ class StaticController extends AbstractFOSRestController
         $this->zoneRepository=$zoneRepository;
         $this->em=$entityManager;
         $this->logger=$logger;
+        $this->configurationRepository=$configurationRepository;
     }
 
     /**
@@ -85,10 +94,10 @@ class StaticController extends AbstractFOSRestController
     public function tauxechangecountry($id): Response
     {
         $country=$this->countryRepository->find($id);
-        $tauxexafusd=$this->tauxRepository->findOneBy(['code'=>"XAF"]);
+        $tauxplatfom=$this->configurationRepository->findOneByLast()->getTauxplatform();
         $tauxechange=$this->tauxRepository->findOneBy(['zone'=>$country->getZone()]);
         $view = $this->view([
-            'taux_xaf_usd'=>$tauxexafusd->getMontant(),
+            'taux_xaf_usd'=>$tauxplatfom,
             'tauxcountry'=> $tauxechange->getMontant(),
             'monaire'=>$tauxechange->getSymbole()
         ], Response::HTTP_OK, []);
@@ -119,8 +128,8 @@ class StaticController extends AbstractFOSRestController
      */
     public function tauxechangebydefault(): Response
     {
-        $tauxechange=$this->tauxRepository->findOneBy(['code'=>"XAF"]);
-        $view = $this->view($tauxechange, Response::HTTP_OK, []);
+        $tauxechange=$this->configurationRepository->findOneByLast()->getTauxplatform();
+        $view = $this->view(['tauxechange'=>$tauxechange], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
     /**

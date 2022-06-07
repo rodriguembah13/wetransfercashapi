@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Configuration;
 use App\Entity\Contactcustomer;
 use App\Entity\Customer;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Entity\Zone;
+use App\Repository\ConfigurationRepository;
 use App\Repository\ContactcustomerRepository;
 use App\Repository\CountryRepository;
 use App\Repository\CustomerRepository;
@@ -36,6 +38,7 @@ class DefaultController extends AbstractFOSRestController
     private $countryRepository;
     private $logger;
     private $grilleRepository;
+    private $configurationRepository;
 
     /**
      * DefaultController constructor.
@@ -46,7 +49,7 @@ class DefaultController extends AbstractFOSRestController
      * @param EntityManagerInterface $entityManager
      * @param EmployeRepository $employeRepository
      */
-    public function __construct(GrilletarifaireRepository $grilleRepository,LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
+    public function __construct(ConfigurationRepository $configurationRepository,GrilletarifaireRepository $grilleRepository,LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
                                 ContactcustomerRepository $contactcustomerRepository, EntityManagerInterface $entityManager, EmployeRepository $employeRepository)
     {
         $this->employeRepository = $employeRepository;
@@ -58,6 +61,7 @@ class DefaultController extends AbstractFOSRestController
         $this->countryRepository=$countryRepository;
         $this->logger=$logger;
         $this->grilleRepository=$grilleRepository;
+        $this->configurationRepository=$configurationRepository;
     }
 
     /**
@@ -67,6 +71,38 @@ class DefaultController extends AbstractFOSRestController
     {
         $data = $this->employeRepository->findAll();
         $view = $this->view($data, Response::HTTP_OK, []);
+
+        return $this->handleView($view);
+    }
+    /**
+     * @Rest\Get("/v1/configuration", name="app_configuration")
+     */
+    public function configuration(): Response
+    {
+        $data = $this->configurationRepository->findOneByLast();
+        $view = $this->view($data, Response::HTTP_OK, []);
+
+        return $this->handleView($view);
+    }
+    /**
+     * @Rest\Post("/v1/configuration", name="app_configuration_new")
+     * @param Request $request
+     * @return Response
+     */
+    public function createConfiguration(Request $request): Response
+    {
+        $res = json_decode($request->getContent(), true);
+        $data = $res['data'];
+        $configuration=$this->configurationRepository->findOneByLast();
+        if (is_null($configuration)){
+            $configuration=new Configuration();
+
+        }
+        $configuration->setTauxplatform($data['tauxplatform']);
+        $configuration->setPhone($data['phone']);
+        $this->em->persist($configuration);
+        $this->em->flush();
+        $view = $this->view($configuration, Response::HTTP_OK, []);
 
         return $this->handleView($view);
     }
@@ -109,6 +145,7 @@ class DefaultController extends AbstractFOSRestController
         if (is_null($user)) {
             throw new InvalidArgumentException("Resource not found", 400);
         }
+        $transaction->setAgent($user);
 
         if (!$data['customerverify']) {
             $customer = new Customer();

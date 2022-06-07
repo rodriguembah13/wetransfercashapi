@@ -196,6 +196,7 @@ class DefaultController extends AbstractFOSRestController
             'e_phone'=>$transaction->getCustomer()->getPhone(),
             'zonetransaction'=>$transaction->getCountry()->getZone()->getLibelle(),
             'monaire'=>$transaction->getCountry()->getMonaire(),
+            'status'=>$transaction->getStatus(),
             'grille'=>is_null($grille)?" ": $grille->getTrancheA().' - '.$grille->getTrancheB(),
         ];
         $view = $this->view($transaction_, Response::HTTP_OK, []);

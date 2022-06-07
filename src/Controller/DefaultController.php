@@ -90,7 +90,12 @@ class DefaultController extends AbstractFOSRestController
         $res = json_decode($request->getContent(), true);
         $data = $res['data'];
         $transaction = new Transaction();
-        $transaction->setNumerotransaction($this->generateNumero());
+        $numero=$this->generateNumero();
+        $date=new \DateTime('now');
+        $month=  $date->format('m');
+        $text="WTC".$month.$numero;
+        $transaction->setNumeroidentifiant($numero);
+        $transaction->setNumerotransaction($text);
         $transaction->setMontant($data['t_montant']);
         $country=$this->countryRepository->find($data['t_country']);
         $transaction->setCountry($country);
@@ -162,7 +167,25 @@ class DefaultController extends AbstractFOSRestController
         $transaction->setStatus(Transaction::ENVALIDATION);
         $this->em->persist($transaction);
         $this->em->flush();
-        $view = $this->view(['numero'=>$transaction->getNumerotransaction()], Response::HTTP_OK, []);
+        $view = $this->view(['numero'=>$transaction->getNumeroidentifiant()], Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
+
+    /**
+     * @Rest\Post("/v1/transactions/updatestatus", name="app_transactions_updatestatus")
+     * @param Request $request
+     * @return Response
+     */
+    public function updateStatusTransaction(Request $request): Response
+    {
+        $res = json_decode($request->getContent(), true);
+        $data = $res['data'];
+        $transaction=$this->transactionRepository->find($data['transaction']);
+        $transaction->setStatus($data['status']);
+        $this->em->flush();
+        $date=new \DateTime('now');
+        $month=  $date->format('m');
+        $view = $this->view([$month], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
 
@@ -174,7 +197,7 @@ class DefaultController extends AbstractFOSRestController
      */
     public function getTransaction($id): Response
     {
-        $transaction = $this->transactionRepository->findOneBy(['numerotransaction'=>$id]);
+        $transaction = $this->transactionRepository->findOneBy(['numeroidentifiant'=>$id]);
         $grille=$this->grilleRepository->findOneBy(['zone'=>$transaction->getCountry()->getZone(),'frais'=>$transaction->getFraisenvoi()]);
         $transaction_ = [
             'numero' => $transaction->getNumerotransaction(),
@@ -212,9 +235,10 @@ class DefaultController extends AbstractFOSRestController
         }
         $transaction_numero = '';
         $allowed_characters = array(1, 2, 3, 4, 5, 6, 7, 8, 9);
-        for ($i = 1; $i <= 12; $i++) {
+        for ($i = 1; $i <= 8; $i++) {
             $transaction_numero .= $allowed_characters[rand(0, count($allowed_characters) - 1)];
         }
+
         $txt=$transaction_numero.($last+1);
         return  str_pad($txt, 4, 0, STR_PAD_LEFT);
     }

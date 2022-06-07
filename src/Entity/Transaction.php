@@ -72,6 +72,10 @@ class Transaction
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    private $numeroidentifiant;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
     private $typetransaction;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -82,9 +86,30 @@ class Transaction
      */
     private $status=self::ENVALIDATION;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
+     */
+    private $agent;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumeroidentifiant()
+    {
+        return $this->numeroidentifiant;
+    }
+
+    /**
+     * @param mixed $numeroidentifiant
+     */
+    public function setNumeroidentifiant($numeroidentifiant): void
+    {
+        $this->numeroidentifiant = $numeroidentifiant;
     }
 
     /**
@@ -312,6 +337,18 @@ class Transaction
     public function setBeneficiare(?Contactcustomer $beneficiare): self
     {
         $this->beneficiare = $beneficiare;
+
+        return $this;
+    }
+
+    public function getAgent(): ?User
+    {
+        return $this->agent;
+    }
+
+    public function setAgent(?User $agent): self
+    {
+        $this->agent = $agent;
 
         return $this;
     }

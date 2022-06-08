@@ -129,7 +129,9 @@ class DefaultController extends AbstractFOSRestController
         $numero=$this->generateNumero();
         $date=new \DateTime('now');
         $month=  $date->format('m');
-        $text="WTC".$month.$numero;
+        $year=  $date->format('Y');
+        $day=  $date->format('d');
+        $text="WTC".$day.$month.$year.$numero;
         $transaction->setNumeroidentifiant($numero);
         $transaction->setNumerotransaction($text);
         $transaction->setMontant($data['t_montant']);
@@ -177,6 +179,7 @@ class DefaultController extends AbstractFOSRestController
             $beneficiare->setFirstname($data['b_firstName']);
             $beneficiare->setLastname($data['b_lastName']);
             $beneficiare->setPhone($data['b_phone']);
+            $beneficiare->setBanksignature($data['b_banksignature']);
             if ($data['t_typetransaction']=="cardbank"){
                 $transaction->setTypetransaction("bancaire");
                 $beneficiare->setBanktype($data['b_banktypecompte']);
@@ -188,7 +191,6 @@ class DefaultController extends AbstractFOSRestController
                 $beneficiare->setBanknationalite($data['b_nationalite']);
                 $beneficiare->setBankswiftcode($data['b_bankswiftcode']);
                 $beneficiare->setBankrelaction($data['b_relaction']);
-                $beneficiare->setBanksignature($data['b_banksignature']);
                 if (!empty($data['b_bankname'])){
                     $beneficiare->setBankname($data['b_bankname']);
                 }
@@ -244,7 +246,7 @@ class DefaultController extends AbstractFOSRestController
             'montant'=>$transaction->getMontant(),
             'frais'=>$transaction->getFraisenvoi(),
             'pays'=>$transaction->getCountry()->getLibelle(),
-            'motif'=>$transaction->getCustomer()->getMotif(),
+            'motif'=>$transaction->getRaisontransaction(),
             'montanttotal'=>$transaction->getMontanttotal(),
             'datetransaction'=>$transaction->getDatetransaction()->format('Y-m-d H:m:s'),
             'b_name'=>$transaction->getBeneficiare()->getFirstname(),

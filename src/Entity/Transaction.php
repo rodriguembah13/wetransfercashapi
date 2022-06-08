@@ -13,6 +13,7 @@ class Transaction
     public const ENVALIDATION="en validation";
     public const VALIDATION="validation";
     public const EFFECTUE="effectue";
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -85,7 +86,14 @@ class Transaction
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $status=self::ENVALIDATION;
-
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fileimagename;
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isdelete=false;
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
      */
@@ -352,4 +360,37 @@ class Transaction
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getFileimagename()
+    {
+        return $this->fileimagename;
+    }
+
+    /**
+     * @param mixed $fileimagename
+     */
+    public function setFileimagename($fileimagename): void
+    {
+        $this->fileimagename = $fileimagename;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsdelete()
+    {
+        return $this->isdelete;
+    }
+
+    /**
+     * @param mixed $isdelete
+     */
+    public function setIsdelete($isdelete): void
+    {
+        $this->isdelete = $isdelete;
+    }
+
 }

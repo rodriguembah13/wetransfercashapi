@@ -111,7 +111,7 @@ class DefaultController extends AbstractFOSRestController
      */
     public function transactions(): Response
     {
-        $data = $this->transactionRepository->findBy([],['id'=>'DESC']);
+        $data = $this->transactionRepository->findBy(['isdelete'=>false],['id'=>'DESC']);
         $view = $this->view($data, Response::HTTP_OK, []);
 
         return $this->handleView($view);
@@ -201,6 +201,20 @@ class DefaultController extends AbstractFOSRestController
             $beneficiare->setCustomer($customer);
             $this->em->persist($beneficiare);
         }
+
+        if (!empty($data['customer_image'])){
+            $image_parts = explode(";base64,", $data['customer_image']);
+            if (sizeof($image_parts)>1){
+                $image_base64 = base64_decode($image_parts[1]);
+                $imagename=uniqid() . '.png';
+                $destination = $this->getParameter('kernel.project_dir').'/public/uploads/';
+                $file = $destination . $imagename;
+                if (file_put_contents($file, $image_base64)){
+                    $customer->setFileimagename($this->getParameter('domain').$imagename);
+                }
+            }
+
+        }
         $transaction->setBeneficiare($beneficiare);
         $transaction->setCustomer($customer);
         $transaction->setDatetransaction(new \DateTime('now',new \DateTimeZone('Africa/Brazzaville')));
@@ -229,6 +243,19 @@ class DefaultController extends AbstractFOSRestController
         return $this->handleView($view);
     }
 
+    /**
+     * @Rest\Delete("/v1/transactions/{id}", name="app_transaction_delete")
+     * @param $id
+     * @return Response
+     */
+    public function deletetransaction($id): Response
+    {
+        $transaction=$this->transactionRepository->find($id);
+        $transaction->setIsdelete(true);
+        $this->em->flush();
+        $view = $this->view($transaction, Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
     /**
      * @Rest\Get("/v1/transactions/{id}", name="app_gettransaction")
      *

@@ -79,11 +79,30 @@ class Customer
      * @ORM\ManyToOne(targetEntity=Country::class)
      */
     private $country;
-
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fileimagename;
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
         $this->contactcustomers = new ArrayCollection();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFileimagename()
+    {
+        return $this->fileimagename;
+    }
+
+    /**
+     * @param mixed $fileimagename
+     */
+    public function setFileimagename($fileimagename): void
+    {
+        $this->fileimagename = $fileimagename;
     }
 
     /**

@@ -111,7 +111,7 @@ class DefaultController extends AbstractFOSRestController
      */
     public function transactions(): Response
     {
-        $data = $this->transactionRepository->findAll();
+        $data = $this->transactionRepository->findBy([],['id'=>'DESC']);
         $view = $this->view($data, Response::HTTP_OK, []);
 
         return $this->handleView($view);
@@ -141,6 +141,7 @@ class DefaultController extends AbstractFOSRestController
         $transaction->setTypeservice($data['t_typeservice']);
         $transaction->setRaisontransaction($data['t_raisontransaction']);
         $transaction->setFraisenvoi($data['t_frais']);
+        $transaction->setMontanttotal($data['t_montanttotal']);
         $user = $this->userRepository->find($data['user']);
         if (is_null($user)) {
             throw new InvalidArgumentException("Resource not found", 400);
@@ -174,7 +175,7 @@ class DefaultController extends AbstractFOSRestController
             $beneficiare = new Contactcustomer();
             $beneficiare->setEmail($data['b_email']);
             $beneficiare->setFirstname($data['b_firstName']);
-            $beneficiare->setEmail($data['b_lastName']);
+            $beneficiare->setLastname($data['b_lastName']);
             $beneficiare->setPhone($data['b_phone']);
             if ($data['t_typetransaction']=="cardbank"){
                 $transaction->setTypetransaction("bancaire");

@@ -16,6 +16,7 @@ use App\Repository\EmployeRepository;
 use App\Repository\GrilletarifaireRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
+use App\Service\VerifyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Exception\InvalidCustomGenerator;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -39,9 +40,20 @@ class DefaultController extends AbstractFOSRestController
     private $logger;
     private $grilleRepository;
     private $configurationRepository;
+    /**
+     * Verification service
+     *
+     * @var VerifyService
+     */
+    protected VerifyService $verify;
 
     /**
      * DefaultController constructor.
+     * @param VerifyService $verify
+     * @param ConfigurationRepository $configurationRepository
+     * @param GrilletarifaireRepository $grilleRepository
+     * @param LoggerInterface $logger
+     * @param CountryRepository $countryRepository
      * @param TransactionRepository $transactionRepository
      * @param UserRepository $userRepository
      * @param CustomerRepository $customerRepository
@@ -49,7 +61,7 @@ class DefaultController extends AbstractFOSRestController
      * @param EntityManagerInterface $entityManager
      * @param EmployeRepository $employeRepository
      */
-    public function __construct(ConfigurationRepository $configurationRepository,GrilletarifaireRepository $grilleRepository,LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
+    public function __construct(VerifyService $verify,ConfigurationRepository $configurationRepository,GrilletarifaireRepository $grilleRepository,LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
                                 ContactcustomerRepository $contactcustomerRepository, EntityManagerInterface $entityManager, EmployeRepository $employeRepository)
     {
         $this->employeRepository = $employeRepository;
@@ -60,6 +72,7 @@ class DefaultController extends AbstractFOSRestController
         $this->transactionRepository = $transactionRepository;
         $this->countryRepository=$countryRepository;
         $this->logger=$logger;
+        $this->verify = $verify;
         $this->grilleRepository=$grilleRepository;
         $this->configurationRepository=$configurationRepository;
     }
@@ -107,12 +120,46 @@ class DefaultController extends AbstractFOSRestController
         return $this->handleView($view);
     }
     /**
+     * @Rest\Get("/v1/transactions/sendotp/{phone}", name="app_transactions_sendotp")
+     */
+    public function sendOTP($phone): Response
+    {
+        $channel = 'sms';
+        $verification = $this->verify->startVerification( $phone, $channel);
+        $view = $this->view($verification, Response::HTTP_OK, []);
+
+        return $this->handleView($view);
+    }
+    /**
      * @Rest\Get("/v1/transactions", name="app_transactions")
      */
     public function transactions(): Response
     {
         $data = $this->transactionRepository->findBy(['isdelete'=>false],['id'=>'DESC']);
         $view = $this->view($data, Response::HTTP_OK, []);
+
+        return $this->handleView($view);
+    }
+    /**
+     * @Rest\Post("/v1/transactions/otp", name="app_transactions_otp")
+     * @param Request $request
+     * @return Response
+     */
+    public function verifyOTP(Request $request): Response
+    {
+        $res = json_decode($request->getContent(), true);
+        $data = $res['data'];
+        $verification = $this->verify->checkVerification( $data['phone'], $data['code']);
+        if ($verification->isValid()) {
+            $res=[
+                'value'=>'isvalid'
+            ];
+        }else{
+            $res=[
+                'value'=>'novalid'
+            ];
+        }
+        $view = $this->view($res, Response::HTTP_OK, []);
 
         return $this->handleView($view);
     }

@@ -16,6 +16,7 @@ use App\Repository\EmployeRepository;
 use App\Repository\GrilletarifaireRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
+use App\Service\InfoBip\ClientInfobip;
 use App\Service\VerifyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Exception\InvalidCustomGenerator;
@@ -40,6 +41,7 @@ class DefaultController extends AbstractFOSRestController
     private $logger;
     private $grilleRepository;
     private $configurationRepository;
+    private $infobipService;
     /**
      * Verification service
      *
@@ -61,7 +63,7 @@ class DefaultController extends AbstractFOSRestController
      * @param EntityManagerInterface $entityManager
      * @param EmployeRepository $employeRepository
      */
-    public function __construct(VerifyService $verify,ConfigurationRepository $configurationRepository,GrilletarifaireRepository $grilleRepository,LoggerInterface $logger,CountryRepository $countryRepository,TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
+    public function __construct(ClientInfobip $clientInfobip, VerifyService $verify, ConfigurationRepository $configurationRepository, GrilletarifaireRepository $grilleRepository, LoggerInterface $logger, CountryRepository $countryRepository, TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
                                 ContactcustomerRepository $contactcustomerRepository, EntityManagerInterface $entityManager, EmployeRepository $employeRepository)
     {
         $this->employeRepository = $employeRepository;
@@ -70,11 +72,12 @@ class DefaultController extends AbstractFOSRestController
         $this->customerRepository = $customerRepository;
         $this->userRepository = $userRepository;
         $this->transactionRepository = $transactionRepository;
-        $this->countryRepository=$countryRepository;
-        $this->logger=$logger;
+        $this->countryRepository = $countryRepository;
+        $this->logger = $logger;
         $this->verify = $verify;
-        $this->grilleRepository=$grilleRepository;
-        $this->configurationRepository=$configurationRepository;
+        $this->grilleRepository = $grilleRepository;
+        $this->configurationRepository = $configurationRepository;
+        $this->infobipService = $clientInfobip;
     }
 
     /**
@@ -87,6 +90,7 @@ class DefaultController extends AbstractFOSRestController
 
         return $this->handleView($view);
     }
+
     /**
      * @Rest\Get("/v1/configuration", name="app_configuration")
      */
@@ -97,6 +101,23 @@ class DefaultController extends AbstractFOSRestController
 
         return $this->handleView($view);
     }
+
+    /**
+     * @Rest\Get("/v1/configuration/initinfobip", name="app_configuration_initinfobip")
+     */
+    public function configurationinfibip(): Response
+    {
+        $configuration = $this->configurationRepository->findOneByLast();
+        $appId = $this->infobipService->createAFApplication();
+        $messageid = $this->infobipService->createAFTemplate($appId);
+        $configuration->setInfobipAppId($appId);
+        $configuration->setInfobipMessageId($messageid);
+        $this->em->flush();
+        $view = $this->view($configuration, Response::HTTP_OK, []);
+
+        return $this->handleView($view);
+    }
+
     /**
      * @Rest\Post("/v1/configuration", name="app_configuration_new")
      * @param Request $request
@@ -106,9 +127,9 @@ class DefaultController extends AbstractFOSRestController
     {
         $res = json_decode($request->getContent(), true);
         $data = $res['data'];
-        $configuration=$this->configurationRepository->findOneByLast();
-        if (is_null($configuration)){
-            $configuration=new Configuration();
+        $configuration = $this->configurationRepository->findOneByLast();
+        if (is_null($configuration)) {
+            $configuration = new Configuration();
 
         }
         $configuration->setTauxplatform($data['tauxplatform']);
@@ -119,27 +140,45 @@ class DefaultController extends AbstractFOSRestController
 
         return $this->handleView($view);
     }
+
     /**
      * @Rest\Get("/v1/transactions/sendotp/{phone}", name="app_transactions_sendotp")
      */
     public function sendOTP($phone): Response
     {
         $channel = 'sms';
-        $verification = $this->verify->startVerification( $phone, $channel);
+        $config = $this->configurationRepository->findOneByLast();
+        //  $verification = $this->verify->startVerification( $phone, $channel);
+        $verification = $this->infobipService->sendAFTemplate($config->getInfobipAppId(), $phone, $config->getInfobipMessageId());
         $view = $this->view($verification, Response::HTTP_OK, []);
 
         return $this->handleView($view);
     }
+
+    /**
+     * @Rest\Get("/v1/transactions/resendotp/{pinId}", name="app_transactions_rsendotp")
+     */
+    public function resendOTP($pinId): Response
+    {
+        $channel = 'sms';
+        $config = $this->configurationRepository->findOneByLast();
+        $verification = $this->infobipService->resendOTP($pinId);
+        $view = $this->view($verification, Response::HTTP_OK, []);
+
+        return $this->handleView($view);
+    }
+
     /**
      * @Rest\Get("/v1/transactions", name="app_transactions")
      */
     public function transactions(): Response
     {
-        $data = $this->transactionRepository->findBy(['isdelete'=>false],['id'=>'DESC']);
+        $data = $this->transactionRepository->findBy(['isdelete' => false], ['id' => 'DESC']);
         $view = $this->view($data, Response::HTTP_OK, []);
 
         return $this->handleView($view);
     }
+
     /**
      * @Rest\Post("/v1/transactions/otp", name="app_transactions_otp")
      * @param Request $request
@@ -148,21 +187,24 @@ class DefaultController extends AbstractFOSRestController
     public function verifyOTP(Request $request): Response
     {
         $res = json_decode($request->getContent(), true);
+        $config = $this->configurationRepository->findOneByLast();
         $data = $res['data'];
-        $verification = $this->verify->checkVerification( $data['phone'], $data['code']);
-        if ($verification->isValid()) {
-            $res=[
-                'value'=>'isvalid'
+        // $verification = $this->verify->checkVerification( $data['phone'], $data['code']);
+        $verification = $this->infobipService->verifyPin($data['pin'], $data['code']);
+        if ($verification) {
+            $res = [
+                'value' => 'isvalid'
             ];
-        }else{
-            $res=[
-                'value'=>'novalid'
+        } else {
+            $res = [
+                'value' => 'novalid'
             ];
         }
         $view = $this->view($res, Response::HTTP_OK, []);
 
         return $this->handleView($view);
     }
+
     /**
      * @Rest\Post("/v1/transactions", name="app_transactions_new")
      * @param Request $request
@@ -173,16 +215,16 @@ class DefaultController extends AbstractFOSRestController
         $res = json_decode($request->getContent(), true);
         $data = $res['data'];
         $transaction = new Transaction();
-        $numero=$this->generateNumero();
-        $date=new \DateTime('now');
-        $month=  $date->format('m');
-        $year=  $date->format('Y');
-        $day=  $date->format('d');
-        $text="WTC".$day.$month.$year.$numero;
+        $numero = $this->generateNumero();
+        $date = new \DateTime('now');
+        $month = $date->format('m');
+        $year = $date->format('Y');
+        $day = $date->format('d');
+        $text = "WTC" . $day . $month . $year . $numero;
         $transaction->setNumeroidentifiant($numero);
         $transaction->setNumerotransaction($text);
         $transaction->setMontant($data['t_montant']);
-        $country=$this->countryRepository->find($data['t_country']);
+        $country = $this->countryRepository->find($data['t_country']);
         $transaction->setCountry($country);
         $transaction->setBranche($data['t_branche']);
         $transaction->setModetransfert($data['t_modetransfert']);
@@ -209,15 +251,15 @@ class DefaultController extends AbstractFOSRestController
             $customer->setTypeidentification($data['typeidentification']);
             $customer->setIsverify(true);
             $this->em->persist($customer);
-        }else{
-            $customer=$this->customerRepository->find($data['customer']);
+        } else {
+            $customer = $this->customerRepository->find($data['customer']);
         }
         $this->logger->info("je suis ici");
         if (!empty($data['beneficiareexist'])) {
             $beneficiare = $this->beneficiareRepository->find($data['beneficiare']);
-            if ($data['t_typetransaction']=="cardbank"){
+            if ($data['t_typetransaction'] == "cardbank") {
                 $transaction->setTypetransaction("bancaire");
-            }else{
+            } else {
                 $transaction->setTypetransaction($data['t_typetransaction']);
             }
         } else {
@@ -227,7 +269,7 @@ class DefaultController extends AbstractFOSRestController
             $beneficiare->setLastname($data['b_lastName']);
             $beneficiare->setPhone($data['b_phone']);
             $beneficiare->setBanksignature($data['b_banksignature']);
-            if ($data['t_typetransaction']=="cardbank"){
+            if ($data['t_typetransaction'] == "cardbank") {
                 $transaction->setTypetransaction("bancaire");
                 $beneficiare->setBanktype($data['b_banktypecompte']);
                 $beneficiare->setBankaccountnumber($data['b_bankaccountnumber']);
@@ -238,10 +280,10 @@ class DefaultController extends AbstractFOSRestController
                 $beneficiare->setBanknationalite($data['b_nationalite']);
                 $beneficiare->setBankswiftcode($data['b_bankswiftcode']);
                 $beneficiare->setBankrelaction($data['b_relaction']);
-                if (!empty($data['b_bankname'])){
+                if (!empty($data['b_bankname'])) {
                     $beneficiare->setBankname($data['b_bankname']);
                 }
-            }else{
+            } else {
                 $transaction->setTypetransaction($data['t_typetransaction']);
             }
 
@@ -249,26 +291,26 @@ class DefaultController extends AbstractFOSRestController
             $this->em->persist($beneficiare);
         }
 
-        if (!empty($data['customer_image'])){
+        if (!empty($data['customer_image'])) {
             $image_parts = explode(";base64,", $data['customer_image']);
-            if (sizeof($image_parts)>1){
+            if (sizeof($image_parts) > 1) {
                 $image_base64 = base64_decode($image_parts[1]);
-                $imagename=uniqid() . '.png';
-                $destination = $this->getParameter('kernel.project_dir').'/public/uploads/';
+                $imagename = uniqid() . '.png';
+                $destination = $this->getParameter('kernel.project_dir') . '/public/uploads/';
                 $file = $destination . $imagename;
-                if (file_put_contents($file, $image_base64)){
-                    $customer->setFileimagename($this->getParameter('domain').$imagename);
+                if (file_put_contents($file, $image_base64)) {
+                    $customer->setFileimagename($this->getParameter('domain') . $imagename);
                 }
             }
 
         }
         $transaction->setBeneficiare($beneficiare);
         $transaction->setCustomer($customer);
-        $transaction->setDatetransaction(new \DateTime('now',new \DateTimeZone('Africa/Brazzaville')));
+        $transaction->setDatetransaction(new \DateTime('now', new \DateTimeZone('Africa/Brazzaville')));
         $transaction->setStatus(Transaction::ENVALIDATION);
         $this->em->persist($transaction);
         $this->em->flush();
-        $view = $this->view(['numero'=>$transaction->getNumeroidentifiant()], Response::HTTP_OK, []);
+        $view = $this->view(['numero' => $transaction->getNumeroidentifiant()], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
 
@@ -281,11 +323,11 @@ class DefaultController extends AbstractFOSRestController
     {
         $res = json_decode($request->getContent(), true);
         $data = $res['data'];
-        $transaction=$this->transactionRepository->find($data['transaction']);
+        $transaction = $this->transactionRepository->find($data['transaction']);
         $transaction->setStatus($data['status']);
         $this->em->flush();
-        $date=new \DateTime('now');
-        $month=  $date->format('m');
+        $date = new \DateTime('now');
+        $month = $date->format('m');
         $view = $this->view([$month], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
@@ -297,12 +339,13 @@ class DefaultController extends AbstractFOSRestController
      */
     public function deletetransaction($id): Response
     {
-        $transaction=$this->transactionRepository->find($id);
+        $transaction = $this->transactionRepository->find($id);
         $transaction->setIsdelete(true);
         $this->em->flush();
         $view = $this->view($transaction, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
+
     /**
      * @Rest\Get("/v1/transactions/{id}", name="app_gettransaction")
      *
@@ -311,34 +354,35 @@ class DefaultController extends AbstractFOSRestController
      */
     public function getTransaction($id): Response
     {
-        $transaction = $this->transactionRepository->findOneBy(['numeroidentifiant'=>$id]);
-        $grille=$this->grilleRepository->findOneBy(['zone'=>$transaction->getCountry()->getZone(),'frais'=>$transaction->getFraisenvoi()]);
+        $transaction = $this->transactionRepository->findOneBy(['numeroidentifiant' => $id]);
+        $grille = $this->grilleRepository->findOneBy(['zone' => $transaction->getCountry()->getZone(), 'frais' => $transaction->getFraisenvoi()]);
         $transaction_ = [
             'numero' => $transaction->getNumerotransaction(),
             'type' => $transaction->getTypetransaction(),
-            'numerocompte'=>$transaction->getBeneficiare()->getBankaccountnumber(),
-            'montant'=>$transaction->getMontant(),
-            'frais'=>$transaction->getFraisenvoi(),
-            'pays'=>$transaction->getCountry()->getLibelle(),
-            'motif'=>$transaction->getRaisontransaction(),
-            'montanttotal'=>$transaction->getMontanttotal(),
-            'datetransaction'=>$transaction->getDatetransaction()->format('Y-m-d H:m:s'),
-            'b_name'=>$transaction->getBeneficiare()->getFirstname(),
-            'b_lastname'=>$transaction->getBeneficiare()->getLastname(),
-            'b_phone'=>$transaction->getBeneficiare()->getPhone(),
-            'b_codeswift'=>$transaction->getBeneficiare()->getBankswiftcode(),
-            'b_codeiban'=>$transaction->getBeneficiare()->getBankiban(),
-            'e_name'=>$transaction->getCustomer()->getFirstname(),
-            'e_lastname'=>$transaction->getCustomer()->getLastname(),
-            'e_phone'=>$transaction->getCustomer()->getPhone(),
-            'zonetransaction'=>$transaction->getCountry()->getZone()->getLibelle(),
-            'monaire'=>$transaction->getCountry()->getMonaire(),
-            'status'=>$transaction->getStatus(),
-            'grille'=>is_null($grille)?" ": $grille->getTrancheA().' - '.$grille->getTrancheB(),
+            'numerocompte' => $transaction->getBeneficiare()->getBankaccountnumber(),
+            'montant' => $transaction->getMontant(),
+            'frais' => $transaction->getFraisenvoi(),
+            'pays' => $transaction->getCountry()->getLibelle(),
+            'motif' => $transaction->getRaisontransaction(),
+            'montanttotal' => $transaction->getMontanttotal(),
+            'datetransaction' => $transaction->getDatetransaction()->format('Y-m-d H:m:s'),
+            'b_name' => $transaction->getBeneficiare()->getFirstname(),
+            'b_lastname' => $transaction->getBeneficiare()->getLastname(),
+            'b_phone' => $transaction->getBeneficiare()->getPhone(),
+            'b_codeswift' => $transaction->getBeneficiare()->getBankswiftcode(),
+            'b_codeiban' => $transaction->getBeneficiare()->getBankiban(),
+            'e_name' => $transaction->getCustomer()->getFirstname(),
+            'e_lastname' => $transaction->getCustomer()->getLastname(),
+            'e_phone' => $transaction->getCustomer()->getPhone(),
+            'zonetransaction' => $transaction->getCountry()->getZone()->getLibelle(),
+            'monaire' => $transaction->getCountry()->getMonaire(),
+            'status' => $transaction->getStatus(),
+            'grille' => is_null($grille) ? " " : $grille->getTrancheA() . ' - ' . $grille->getTrancheB(),
         ];
         $view = $this->view($transaction_, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
+
     private function generateNumero()
     {
         $last = null;
@@ -353,7 +397,7 @@ class DefaultController extends AbstractFOSRestController
             $transaction_numero .= $allowed_characters[rand(0, count($allowed_characters) - 1)];
         }
 
-        $txt=$transaction_numero.($last+1);
-        return  str_pad($txt, 4, 0, STR_PAD_LEFT);
+        $txt = $transaction_numero . ($last + 1);
+        return str_pad($txt, 4, 0, STR_PAD_LEFT);
     }
 }

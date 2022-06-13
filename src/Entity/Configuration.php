@@ -26,10 +26,50 @@ class Configuration
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $phone;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $infobipAppId;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $infobipMessageId;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInfobipAppId()
+    {
+        return $this->infobipAppId;
+    }
+
+    /**
+     * @param mixed $infobipAppId
+     */
+    public function setInfobipAppId($infobipAppId): void
+    {
+        $this->infobipAppId = $infobipAppId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInfobipMessageId()
+    {
+        return $this->infobipMessageId;
+    }
+
+    /**
+     * @param mixed $infobipMessageId
+     */
+    public function setInfobipMessageId($infobipMessageId): void
+    {
+        $this->infobipMessageId = $infobipMessageId;
     }
 
     public function getTauxplatform(): ?float

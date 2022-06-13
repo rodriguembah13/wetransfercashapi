@@ -6,6 +6,7 @@
     "require": {
         "php": ">=7.4",
         "ext-ctype": "*",
+        "ext-http": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "authy/php": "^4.0.0-rc1",
@@ -16,6 +17,7 @@
         "friendsofsymfony/rest-bundle": "^3.3",
         "guzzlehttp/guzzle": "^7.4",
         "handcraftedinthealps/rest-routing-bundle": "^1.0",
+        "infobip/infobip-api-php-client": "^3.2",
         "jms/serializer-bundle": "^3.5",
         "league/oauth2-google": "^4.0",
         "lexik/jwt-authentication-bundle": "^2.14",
@@ -33,8 +35,7 @@
         "symfony/validator": "5.4.*",
         "symfony/yaml": "5.4.*",
         "twilio/sdk": "^6.23",
-        "willdurand/hateoas": "^3.8",
-      "ext-http": "*"
+        "willdurand/hateoas": "^3.8"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.38"

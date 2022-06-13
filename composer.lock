@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "39ae9bb1a3216cdd6c13f1b437d05c08",
+    "content-hash": "b47f9085d450ee3d103c72bbaca32f47",
     "packages": [
         {
             "name": "authy/php",
@@ -2072,6 +2072,64 @@
                 "source": "https://github.com/handcraftedinthealps/RestRoutingBundle/tree/1.0.5"
             },
             "time": "2021-12-19T17:31:53+00:00"
+        },
+        {
+            "name": "infobip/infobip-api-php-client",
+            "version": "3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/infobip/infobip-api-php-client.git",
+                "reference": "076be729a28aa77fb37620ba6fa4af06df973d96"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/infobip/infobip-api-php-client/zipball/076be729a28aa77fb37620ba6fa4af06df973d96",
+                "reference": "076be729a28aa77fb37620ba6fa4af06df973d96",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^7.3",
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Infobip\\": "Infobip/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Infobip Support",
+                    "email": "support@infobip.com",
+                    "homepage": "https://www.infobip.com"
+                }
+            ],
+            "description": "PHP library for consuming Infobip's API",
+            "homepage": "https://www.infobip.com",
+            "keywords": [
+                "2fa",
+                "Infobip",
+                "api",
+                "msisdn",
+                "openapi",
+                "php",
+                "rest",
+                "sdk",
+                "sms",
+                "tfa"
+            ],
+            "support": {
+                "issues": "https://github.com/infobip/infobip-api-php-client/issues",
+                "source": "https://github.com/infobip/infobip-api-php-client/tree/3.2.0"
+            },
+            "time": "2022-03-29T13:00:57+00:00"
         },
         {
             "name": "jms/metadata",
@@ -8093,6 +8151,7 @@
     "platform": {
         "php": ">=7.4",
         "ext-ctype": "*",
+        "ext-http": "*",
         "ext-iconv": "*",
         "ext-json": "*"
     },

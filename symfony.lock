@@ -203,6 +203,9 @@
     "ralouphie/getallheaders": {
         "version": "3.0.3"
     },
+    "setasign/fpdf": {
+        "version": "1.8.4"
+    },
     "symfony/cache": {
         "version": "v5.4.6"
     },

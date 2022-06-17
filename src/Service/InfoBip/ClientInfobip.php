@@ -78,7 +78,7 @@ class ClientInfobip
                 (new TfaStartAuthenticationRequest())
                     ->setApplicationId($appid)
                     ->setMessageId($messageId)
-                    ->setFrom("Agensic")
+                    ->setFrom("AGENSIC")
                     ->setTo($phone));
 
         $isSuccessful = $sendCodeResponse->getSmsStatus() == "MESSAGE_SENT";

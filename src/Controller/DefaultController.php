@@ -14,10 +14,12 @@ use App\Repository\CountryRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\EmployeRepository;
 use App\Repository\GrilletarifaireRepository;
+use App\Repository\TauxechangeRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Service\InfoBip\ClientInfobip;
 use App\Service\VerifyService;
+use App\Utils\Fpdf\ListingServicepdf;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Exception\InvalidCustomGenerator;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -42,6 +44,8 @@ class DefaultController extends AbstractFOSRestController
     private $grilleRepository;
     private $configurationRepository;
     private $infobipService;
+    private $listingService;
+    private $tauxechangeRepository;
     /**
      * Verification service
      *
@@ -63,7 +67,7 @@ class DefaultController extends AbstractFOSRestController
      * @param EntityManagerInterface $entityManager
      * @param EmployeRepository $employeRepository
      */
-    public function __construct(ClientInfobip $clientInfobip, VerifyService $verify, ConfigurationRepository $configurationRepository, GrilletarifaireRepository $grilleRepository, LoggerInterface $logger, CountryRepository $countryRepository, TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
+    public function __construct(TauxechangeRepository $tauxechangeRepository,ListingServicepdf $listingService, ClientInfobip $clientInfobip, VerifyService $verify, ConfigurationRepository $configurationRepository, GrilletarifaireRepository $grilleRepository, LoggerInterface $logger, CountryRepository $countryRepository, TransactionRepository $transactionRepository, UserRepository $userRepository, CustomerRepository $customerRepository,
                                 ContactcustomerRepository $contactcustomerRepository, EntityManagerInterface $entityManager, EmployeRepository $employeRepository)
     {
         $this->employeRepository = $employeRepository;
@@ -78,6 +82,8 @@ class DefaultController extends AbstractFOSRestController
         $this->grilleRepository = $grilleRepository;
         $this->configurationRepository = $configurationRepository;
         $this->infobipService = $clientInfobip;
+        $this->listingService = $listingService;
+        $this->tauxechangeRepository=$tauxechangeRepository;
     }
 
     /**
@@ -399,5 +405,44 @@ class DefaultController extends AbstractFOSRestController
 
         $txt = $transaction_numero . ($last + 1);
         return str_pad($txt, 4, 0, STR_PAD_LEFT);
+    }
+
+    /**
+     * @return Response
+     * @Rest\Get ("/v1/transactions/recu/{id}",name="getpdfrecutransaction")
+     */
+    public function getRecupdf($id)
+    {
+        $transaction = $this->transactionRepository->find($id);
+        $tauxexhange=$this->tauxechangeRepository->findOneBy(['zone'=>$transaction->getCountry()->getZone()]);
+       $subtotal=$tauxexhange->getMontant()*$transaction->getMontant() +($transaction->getMontant()+$transaction->getFraisenvoi());
+        $arrays = [
+            'numero' => $transaction->getNumerotransaction(),
+            'datecreation' => $transaction->getDatetransaction()->format('d-m-Y h:m'),
+            'expediteur' => $transaction->getCustomer()->getFirstname() . ' ' . $transaction->getCustomer()->getLastname(),
+            'exp_adresse' => $transaction->getCustomer()->getCountry(),
+            'exp_phone' => $transaction->getCustomer()->getPhone(),
+            'exp_idcard' => $transaction->getCustomer()->getNumeropiece(),
+            'exp_pays' => $transaction->getCustomer()->getCountry(),
+            'beneficiare' => $transaction->getBeneficiare()->getFirstname() . ' ' . $transaction->getBeneficiare()->getLastname(),
+            'b_pays' => $transaction->getCountry()->getLibelle(),
+            'b_phone' => $transaction->getBeneficiare()->getPhone(),
+            'agent' => $transaction->getAgent()->getName(),
+            'typetransaction' => $transaction->getTypetransaction(),
+            'wallet' => "",
+            'montantsend' => $transaction->getMontant().' FCFA',
+            'frais' => $transaction->getFraisenvoi(),
+            'taux' => $tauxexhange->getMontant(),
+            'montantpercu' => $transaction->getMontanttotal(). ' '.$transaction->getCountry()->getMonaire(),
+            'taxes' => "",
+            'subtotal' => $subtotal,
+            'total' => "",
+
+        ];
+        $this->listingService->initRecuScolarite($arrays);
+        $view = $this->view([
+            'link' => $this->getParameter('domain') . '/recu/' . 'recutransaction.pdf'
+        ], Response::HTTP_OK, []);
+        return $this->handleView($view);
     }
 }

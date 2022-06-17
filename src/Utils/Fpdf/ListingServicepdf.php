@@ -96,9 +96,9 @@ class ListingServicepdf
         $this->pdf->Line(3, $this->pdf->GetY() + 5, 292, $this->pdf->GetY() + 5);
         $configuration = $this->configurationRepository->findOneByLast();
         $this->pdf->SetFont('Times', 'B', 14);
-        $y1=$this->pdf->GetY();
-        $this->pdf->SetXY(10, $this->pdf->GetY() + 5);
-        $this->pdf->Cell(40, 10, utf8_decode('Expéditeur : '.$data['expediteur']), 0, 0, 'L');
+        $y1=$this->pdf->GetY()+5;
+        $this->pdf->SetXY(10, $y1 + 5);
+        $this->pdf->Cell(40, 5, utf8_decode('Expéditeur : '.$data['expediteur']), 0, 0, 'L');
         $this->pdf->Ln();
         $this->pdf->SetFont('Times', '', 12);
         $this->pdf->Cell(40, 5, utf8_decode($data['exp_adresse']), 0, 0, 'L');
@@ -112,7 +112,7 @@ class ListingServicepdf
         $this->pdf->SetFont('Times', 'B', 14);
         $this->pdf->SetXY(120, $y1 + 5);
         $this->pdf->MultiCell(80, 6, utf8_decode('Bénéficiaire :'.$data['beneficiare']), 0, 'J');
-        $this->pdf->Ln();
+       // $this->pdf->Ln();
         $this->pdf->SetXY(120, $this->pdf->GetY());
         $this->pdf->SetFont('Times', '', 12);
         $this->pdf->Cell(40, 5, utf8_decode('Pays:'.$data['b_pays']), 0, 0, 'L');
@@ -128,7 +128,7 @@ class ListingServicepdf
         $this->pdf->Ln();
         $this->pdf->SetXY(220, $y1 + 5);
         $this->pdf->SetFont('Times', 'B', 14);
-        $this->pdf->Cell(40, 10, utf8_decode('Détail du transfert'), 0, 'J');
+        $this->pdf->Cell(40, 5, utf8_decode('Détail du transfert'), 0, 'J');
         $this->pdf->Ln();
         $this->pdf->SetFont('Times', '', 12);
         $this->pdf->SetXY(220, $this->pdf->GetY());
@@ -140,7 +140,7 @@ class ListingServicepdf
         $this->pdf->SetXY(220, $this->pdf->GetY());
         $this->pdf->Cell(40, 5, utf8_decode('Wallet : '.$data['wallet']), 0, 0, 'L');
         $this->pdf->Ln();
-        $this->pdf->SetY($this->pdf->GetY()+10);
+        $this->pdf->SetY($this->pdf->GetY()+20);
         $this->pdf->SetFont('Times', 'B', 12);
         $this->pdf->Cell(200, 10, utf8_decode('Description'), 1, 0, 'L');
         $this->pdf->Cell(80, 10, utf8_decode('Montant'), 1, 0, 'C');
@@ -168,7 +168,7 @@ class ListingServicepdf
         $this->pdf->Cell(200, 10, utf8_decode('Total'), 0, 0, 'R');
         $this->pdf->Cell(80, 10, $data['total'], 1, 0, 'C');
         $this->pdf->Ln();
-        $this->pdf->SetY($this->pdf->GetY()+10);
+        $this->pdf->SetY($this->pdf->GetY()+5);
         $this->pdf->SetFont('Times', 'B', 14);
         $this->pdf->Cell(80, 10, "Signature du client", 0, 0, 'C');
         $this->pdf->Cell(180, 10, "Signature caisse", 0, 0, 'R');

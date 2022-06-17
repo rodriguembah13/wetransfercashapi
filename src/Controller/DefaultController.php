@@ -437,7 +437,7 @@ class DefaultController extends AbstractFOSRestController
             'taux' => $tauxexhange->getMontant(),
             'montantpercu' => $transaction->getMontanttotal(). ' '.$transaction->getCountry()->getMonaire(),
             'taxes' => "",
-            'subtotal' => round($subtotal,2).' FCFA',
+            'subtotal' => round($transaction->getMontant()+$transaction->getFraisenvoi(),2).' FCFA',
             'total' => round($transaction->getMontant()+$transaction->getFraisenvoi(),2).' FCFA',
 
         ];

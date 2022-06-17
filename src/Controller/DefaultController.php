@@ -415,7 +415,7 @@ class DefaultController extends AbstractFOSRestController
     {
         $transaction = $this->transactionRepository->find($id);
         $tauxexhange=$this->tauxechangeRepository->findOneBy(['zone'=>$transaction->getCountry()->getZone()]);
-       $subtotal=$tauxexhange->getMontant()*$transaction->getMontant() +($transaction->getMontant()+$transaction->getFraisenvoi());
+       $subtotal=($tauxexhange->getMontant()*$transaction->getMontant())/100 +($transaction->getMontant()+$transaction->getFraisenvoi());
         $arrays = [
             'numero' => $transaction->getNumerotransaction(),
             'datecreation' => $transaction->getDatetransaction()->format('d-m-Y h:m'),
@@ -435,8 +435,8 @@ class DefaultController extends AbstractFOSRestController
             'taux' => $tauxexhange->getMontant(),
             'montantpercu' => $transaction->getMontanttotal(). ' '.$transaction->getCountry()->getMonaire(),
             'taxes' => "",
-            'subtotal' => $subtotal,
-            'total' => "",
+            'subtotal' => round($subtotal,2).' FCFA',
+            'total' => round($subtotal,2).' FCFA',
 
         ];
         $this->listingService->initRecuScolarite($arrays);

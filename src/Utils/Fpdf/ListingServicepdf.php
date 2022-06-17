@@ -120,6 +120,12 @@ class ListingServicepdf
         $this->pdf->SetXY(120, $this->pdf->GetY()+1);
         $this->pdf->Cell(40, 5, utf8_decode('Téléphone :'.$data['b_phone']), 0, 0, 'L');
         $this->pdf->Ln();
+        $this->pdf->SetXY(120, $this->pdf->GetY()+1);
+        $this->pdf->Cell(40, 5, utf8_decode('Code Swift :'.$data['b_swift']), 0, 0, 'L');
+        $this->pdf->Ln();
+        $this->pdf->SetXY(120, $this->pdf->GetY()+1);
+        $this->pdf->Cell(40, 5, utf8_decode('Code IBAN :'.$data['b_iban']), 0, 0, 'L');
+        $this->pdf->Ln();
         $this->pdf->SetXY(220, $y1 + 5);
         $this->pdf->SetFont('Times', 'B', 14);
         $this->pdf->Cell(40, 10, utf8_decode('Détail du transfert'), 0, 'J');

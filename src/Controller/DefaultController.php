@@ -316,7 +316,7 @@ class DefaultController extends AbstractFOSRestController
         $transaction->setStatus(Transaction::ENVALIDATION);
         $this->em->persist($transaction);
         $this->em->flush();
-        $view = $this->view(['numero' => $transaction->getNumeroidentifiant()], Response::HTTP_OK, []);
+        $view = $this->view(['numero' => $transaction->getNumeroidentifiant(),'id'=>$transaction->getId()], Response::HTTP_OK, []);
         return $this->handleView($view);
     }
 
@@ -427,6 +427,8 @@ class DefaultController extends AbstractFOSRestController
             'beneficiare' => $transaction->getBeneficiare()->getFirstname() . ' ' . $transaction->getBeneficiare()->getLastname(),
             'b_pays' => $transaction->getCountry()->getLibelle(),
             'b_phone' => $transaction->getBeneficiare()->getPhone(),
+            'b_swift'=>$transaction->getBeneficiare()->getBankswiftcode(),
+            'b_iban'=>$transaction->getBeneficiare()->getBankiban(),
             'agent' => $transaction->getAgent()->getName(),
             'typetransaction' => $transaction->getTypetransaction(),
             'wallet' => "",
@@ -436,7 +438,7 @@ class DefaultController extends AbstractFOSRestController
             'montantpercu' => $transaction->getMontanttotal(). ' '.$transaction->getCountry()->getMonaire(),
             'taxes' => "",
             'subtotal' => round($subtotal,2).' FCFA',
-            'total' => round($subtotal,2).' FCFA',
+            'total' => round($transaction->getMontant()+$transaction->getFraisenvoi(),2).' FCFA',
 
         ];
         $this->listingService->initRecuScolarite($arrays);

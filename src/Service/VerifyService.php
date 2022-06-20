@@ -38,8 +38,8 @@ class VerifyService implements VerifyServiceInterface
             $client = new Client($sid, $token);
         }
         $this->client = $client;
-        //$service = $this->client->verify->v2->services->create("archivage api");
-        //$this->verification_sid = $service->sid;
+        //$service = $this->client->verify->v2->services->create("AGENSIC");
+       // $this->verification_sid = $service->sid;
         $this->verification_sid = $verification_sid ?: $parameterBag->get('VERIFY_SID');
     }
 

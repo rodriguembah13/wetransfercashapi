@@ -153,9 +153,8 @@ class DefaultController extends AbstractFOSRestController
     public function sendOTP($phone): Response
     {
         $channel = 'sms';
-        $config = $this->configurationRepository->findOneByLast();
-        //  $verification = $this->verify->startVerification( $phone, $channel);
-        $verification = $this->infobipService->sendAFTemplate($config->getInfobipAppId(), $phone, $config->getInfobipMessageId());
+        $verification = $this->verify->startVerification( $phone, $channel);
+      //  $verification = $this->infobipService->sendAFTemplate($config->getInfobipAppId(), $phone, $config->getInfobipMessageId());
         $view = $this->view($verification, Response::HTTP_OK, []);
 
         return $this->handleView($view);
@@ -167,8 +166,7 @@ class DefaultController extends AbstractFOSRestController
     public function resendOTP($pinId): Response
     {
         $channel = 'sms';
-        $config = $this->configurationRepository->findOneByLast();
-        $verification = $this->infobipService->resendOTP($pinId);
+        $verification = $this->verify->resendOTP($pinId);
         $view = $this->view($verification, Response::HTTP_OK, []);
 
         return $this->handleView($view);
@@ -195,8 +193,8 @@ class DefaultController extends AbstractFOSRestController
         $res = json_decode($request->getContent(), true);
         $config = $this->configurationRepository->findOneByLast();
         $data = $res['data'];
-        // $verification = $this->verify->checkVerification( $data['phone'], $data['code']);
-        $verification = $this->infobipService->verifyPin($data['pin'], $data['code']);
+        $verification = $this->verify->checkVerification( $data['phone'], $data['code']);
+       // $verification = $this->infobipService->verifyPin($data['pin'], $data['code']);
         if ($verification) {
             $res = [
                 'value' => 'isvalid'

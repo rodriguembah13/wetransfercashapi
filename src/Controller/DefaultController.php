@@ -161,12 +161,13 @@ class DefaultController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Get("/v1/transactions/resendotp/{pinId}", name="app_transactions_rsendotp")
+     * @Rest\Get("/v1/transactions/resendotp/{phone}", name="app_transactions_rsendotp")
      */
-    public function resendOTP($pinId): Response
+    public function resendOTP($phone): Response
     {
         $channel = 'sms';
-        $verification = $this->verify->resendOTP($pinId);
+       // $verification = $this->infobipService->resendOTP($pinId);
+        $verification=$this->verify->startVerification($phone,$channel);
         $view = $this->view($verification, Response::HTTP_OK, []);
 
         return $this->handleView($view);
@@ -191,11 +192,10 @@ class DefaultController extends AbstractFOSRestController
     public function verifyOTP(Request $request): Response
     {
         $res = json_decode($request->getContent(), true);
-        $config = $this->configurationRepository->findOneByLast();
         $data = $res['data'];
         $verification = $this->verify->checkVerification( $data['phone'], $data['code']);
        // $verification = $this->infobipService->verifyPin($data['pin'], $data['code']);
-        if ($verification) {
+        if ($verification->isValid()) {
             $res = [
                 'value' => 'isvalid'
             ];

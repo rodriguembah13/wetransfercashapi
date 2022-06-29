@@ -7,11 +7,13 @@ namespace App\Controller;
 use App\Entity\Country;
 use App\Entity\Grilletarifaire;
 use App\Entity\Tauxechange;
+use App\Entity\Town;
 use App\Entity\Zone;
 use App\Repository\ConfigurationRepository;
 use App\Repository\CountryRepository;
 use App\Repository\GrilletarifaireRepository;
 use App\Repository\TauxechangeRepository;
+use App\Repository\TownRepository;
 use App\Repository\ZoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -30,9 +32,11 @@ class StaticController extends AbstractFOSRestController
     private $params;
     private $logger;
     private $configurationRepository;
+    private $townRepository;
 
     /**
      * StaticController constructor.
+     * @param TownRepository $townRepository
      * @param ConfigurationRepository $configurationRepository
      * @param LoggerInterface $logger
      * @param CountryRepository $countryRepository
@@ -41,7 +45,7 @@ class StaticController extends AbstractFOSRestController
      * @param GrilletarifaireRepository $grilletarifaireRepository
      * @param TauxechangeRepository $tauxRepository
      */
-    public function __construct(ConfigurationRepository $configurationRepository,LoggerInterface $logger,CountryRepository $countryRepository,ZoneRepository $zoneRepository,EntityManagerInterface $entityManager,GrilletarifaireRepository $grilletarifaireRepository, TauxechangeRepository $tauxRepository)
+    public function __construct(TownRepository $townRepository,ConfigurationRepository $configurationRepository,LoggerInterface $logger,CountryRepository $countryRepository,ZoneRepository $zoneRepository,EntityManagerInterface $entityManager,GrilletarifaireRepository $grilletarifaireRepository, TauxechangeRepository $tauxRepository)
     {
         $this->grilletarifaireRepository = $grilletarifaireRepository;
         $this->tauxRepository = $tauxRepository;
@@ -50,6 +54,7 @@ class StaticController extends AbstractFOSRestController
         $this->em=$entityManager;
         $this->logger=$logger;
         $this->configurationRepository=$configurationRepository;
+        $this->townRepository=$townRepository;
     }
 
     /**
@@ -86,6 +91,15 @@ class StaticController extends AbstractFOSRestController
     {
         $tauxechanges=$this->tauxRepository->findAll();
         $view = $this->view($tauxechanges, Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
+    /**
+     * @Rest\Get("/v1/towns", name="app_towns")
+     */
+    public function towns(): Response
+    {
+        $towns=$this->townRepository->findAll();
+        $view = $this->view($towns, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
     /**
@@ -245,5 +259,25 @@ class StaticController extends AbstractFOSRestController
         $view = $this->view($grille, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
-
+    /**
+     * @Rest\Post("/v1/towns", name="app_towns_new")
+     * @param Request $request
+     * @return Response
+     */
+    public function createTown(Request $request): Response
+    {
+        $res = json_decode($request->getContent(), true);
+        $data=$res['data'];
+        if ($data['id']){
+            $town=$this->townRepository->find($data['id']);
+        }else{
+            $town=new Town();
+        }
+        $town->setCode($data['code']);
+        $town->setLibelle($data['libelle']);
+        $this->em->persist($town);
+        $this->em->flush();
+        $view = $this->view($town, Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
 }

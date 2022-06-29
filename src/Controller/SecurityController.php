@@ -59,8 +59,16 @@ class SecurityController extends AbstractFOSRestController
      */
     public function cgetUsersAction()
     {
-        //$users = $this->userRepository->findByRoleNotIn("['ROLE_ADMIN']");
-        $users = $this->employeRepository->findAll();
+        $users = [];
+        foreach ($this->userRepository->findAll() as $item){
+            $users[]=[
+                'id'=>$item->getId(),
+              'name'=>$item->getName(),
+              'phone'=>$item->getPhone(),
+              'country'=>$item->getCountry(),
+              'email'=>$item->getEmail()
+            ];
+        }
         $view = $this->view($users, Response::HTTP_OK, []);
         return $this->handleView($view);
     }
@@ -186,6 +194,18 @@ class SecurityController extends AbstractFOSRestController
         return $this->handleView($view);
     }
     /**
+     * @Rest\Get("/v1/users/{id}", name="app_users_get")
+     */
+    public function userget(Request $request): Response
+    {
+        $user = $this->userRepository->find($request->get('id'));
+        if (is_null($user)) {
+            throw new ResourceNotFoundException("Resource user is null");
+        }
+        $view = $this->view($user, Response::HTTP_OK, []);
+        return $this->handleView($view);
+    }
+    /**
      * @Rest\Delete("/v1/users/{id}/user", name="app_users_deleteuser")
      */
     public function deleteUser(Request $request): Response
@@ -276,9 +296,9 @@ class SecurityController extends AbstractFOSRestController
             throw new ResourceNotFoundException("Resource $password not work");
         }
         $channel = 'sms';
-        $verification = $this->verify->startVerification("+" . $user->getPhone(), $channel);
+       // $verification = $this->verify->startVerification("+" . $user->getPhone(), $channel);
         // $this->logger->info("------",$verification->getErrors());
-        if (!$verification->isValid()) {
+        if ($isValid) {
             $token =
                 $this->JWTEncoder->encode([
                     'username' => $user->getEmail(),

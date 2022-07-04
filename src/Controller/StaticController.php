@@ -130,10 +130,11 @@ class StaticController extends AbstractFOSRestController
         $country=$this->countryRepository->find($country_id);
         $this->logger->info($country->getZone()->getId().'------------------');
         $frais=$this->grilletarifaireRepository->findOneByZoneandaount($country->getZone(),$amount);
+        //$mfrais=($frais->getFrais()*$amount)/100;
         $view = $this->view([
-            'frais'=>$frais->getFrais(),
-            'tranche_a'=>$frais->getTrancheA(),
-            'tranche_b'=>$frais->getTrancheB()
+            'frais'=>is_null($frais)?null:($frais->getFrais()*$amount)/100,
+            'tranche_a'=>is_null($frais)?null:$frais->getTrancheA(),
+            'tranche_b'=>is_null($frais)?null:$frais->getTrancheB()
         ], Response::HTTP_OK, []);
         return $this->handleView($view);
     }

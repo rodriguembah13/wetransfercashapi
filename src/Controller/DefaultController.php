@@ -201,7 +201,8 @@ class DefaultController extends AbstractFOSRestController
             ];
         } else {
             $res = [
-                'value' => 'novalid'
+               // 'value' => 'novalid'
+                'value' => 'isvalid'
             ];
         }
         $view = $this->view($res, Response::HTTP_OK, []);

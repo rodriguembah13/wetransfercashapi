@@ -106,7 +106,7 @@ class ListingServicepdf
         $this->pdf->Ln();
         $this->pdf->Cell(40, 5, utf8_decode('Téléphone : '.$data['exp_phone']), 0, 0, 'L');
         $this->pdf->Ln();
-        $this->pdf->Cell(40, 5, utf8_decode(ucfirst($data['typeidentification']).':'.$data['exp_idcard']), 0, 0, 'L');
+        $this->pdf->Cell(40, 5, utf8_decode(ucfirst($data['typeidentification'])).':'.$data['exp_idcard'], 0, 0, 'L');
         $this->pdf->Ln();
       //  $this->pdf->Cell(40, 5, utf8_decode('Pays:'.$data['exp_pays']), 0, 0, 'L');
         $this->pdf->Ln();

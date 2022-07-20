@@ -435,7 +435,7 @@ class DefaultController extends AbstractFOSRestController
             'typetransaction' => $transaction->getTypetransaction(),
             'wallet' => "",
             'montantsend' => number_format($transaction->getMontant(), 2, ',', ' ').' FCFA',
-            'frais' => number_format($transaction->getFraisenvoi(), 2, ',', ' '),
+            'frais' => number_format($transaction->getFraisenvoi(), 2, ',', ' ').' FCFA',
             'taux' => $tauxexhange->getMontant(),
             'montantpercu' => $transaction->getMontanttotal(). ' '.$transaction->getCountry()->getMonaire(),
             'taxes' => "",

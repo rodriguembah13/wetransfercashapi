@@ -169,10 +169,10 @@ class ListingServicepdf
         $this->pdf->Cell(200, 10, utf8_decode('Total'), 0, 0, 'R');
         $this->pdf->Cell(80, 10, $data['total'], 1, 0, 'C');
         $this->pdf->Ln();
-        $this->pdf->SetY($this->pdf->GetY()+5);
+        $this->pdf->SetY($this->pdf->GetY()+3);
         $this->pdf->SetFont('Times', 'B', 14);
-        $this->pdf->Cell(80, 10, "Signature du client", 0, 0, 'C');
-        $this->pdf->Cell(180, 10, "Signature", 0, 0, 'R');
+        $this->pdf->Cell(80, 10, "Signature", 0, 0, 'C');
+       // $this->pdf->Cell(180, 10, "Signature", 0, 0, 'R');
         $this->pdf->RoundedRect(3, 3, 290, 203, 3.5);
     }
     public function initRecuScolarite($rows)

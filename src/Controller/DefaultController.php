@@ -419,7 +419,7 @@ class DefaultController extends AbstractFOSRestController
       //  $fmt = numfmt_create( 'de_DE', NumberFormatter::DECIMAL );
         $arrays = [
             'numero' => $transaction->getNumerotransaction(),
-            'datecreation' => $transaction->getDatetransaction()->format('d-m-Y h:i:s'),
+            'datecreation' => $transaction->getDatetransaction()->format('d-m-Y H:i:s'),
             'expediteur' => $transaction->getCustomer()->getFirstname() . ' ' . $transaction->getCustomer()->getLastname(),
             'exp_adresse' => $transaction->getCustomer()->getCountry(),
             'exp_phone' => $transaction->getCustomer()->getPhone(),

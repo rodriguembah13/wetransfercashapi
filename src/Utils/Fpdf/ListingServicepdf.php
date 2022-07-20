@@ -110,7 +110,7 @@ class ListingServicepdf
         $this->pdf->Ln();
       //  $this->pdf->Cell(40, 5, utf8_decode('Pays:'.$data['exp_pays']), 0, 0, 'L');
         $this->pdf->Ln();
-        $this->pdf->SetFont('Times', 'B', 14);
+        $this->pdf->SetFont('Times', 'B', 13);
         $this->pdf->SetXY(120, $y1 + 5);
         $this->pdf->MultiCell(80, 6, utf8_decode('Bénéficiaire :'.$data['beneficiare']), 0, 'L');
        // $this->pdf->Ln();

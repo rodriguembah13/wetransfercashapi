@@ -419,7 +419,7 @@ class DefaultController extends AbstractFOSRestController
       //  $fmt = numfmt_create( 'de_DE', NumberFormatter::DECIMAL );
         $arrays = [
             'numero' => $transaction->getNumerotransaction(),
-            'datecreation' => $transaction->getDatetransaction()->format('d-m-Y h:m'),
+            'datecreation' => $transaction->getDatetransaction()->format('d-m-Y h:i:s'),
             'expediteur' => $transaction->getCustomer()->getFirstname() . ' ' . $transaction->getCustomer()->getLastname(),
             'exp_adresse' => $transaction->getCustomer()->getCountry(),
             'exp_phone' => $transaction->getCustomer()->getPhone(),
@@ -434,13 +434,13 @@ class DefaultController extends AbstractFOSRestController
             'agent' => $transaction->getAgent()->getName(),
             'typetransaction' => $transaction->getTypetransaction(),
             'wallet' => "",
-            'montantsend' => $transaction->getMontant().' FCFA',
-            'frais' => $transaction->getFraisenvoi(),
+            'montantsend' => number_format($transaction->getMontant(), 2, ',', ' ').' FCFA',
+            'frais' => number_format($transaction->getFraisenvoi(), 2, ',', ' '),
             'taux' => $tauxexhange->getMontant(),
             'montantpercu' => $transaction->getMontanttotal(). ' '.$transaction->getCountry()->getMonaire(),
             'taxes' => "",
-            'subtotal' => round($transaction->getMontant()+$transaction->getFraisenvoi(),2).' FCFA',
-            'total' => round($transaction->getMontant()+$transaction->getFraisenvoi(),2).' FCFA',
+            'subtotal' =>number_format(round($transaction->getMontant()+$transaction->getFraisenvoi(),2), 2, ',', ' ') .' FCFA',
+            'total' => number_format(round($transaction->getMontant()+$transaction->getFraisenvoi(),2), 2, ',', ' ').' FCFA',
 
         ];
         $this->listingService->initRecuScolarite($arrays);

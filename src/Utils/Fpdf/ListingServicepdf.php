@@ -141,7 +141,7 @@ class ListingServicepdf
         $this->pdf->SetXY(220, $this->pdf->GetY());
        // $this->pdf->Cell(40, 5, utf8_decode('Wallet : '.$data['wallet']), 0, 0, 'L');
         $this->pdf->Ln();
-        $this->pdf->SetY($this->pdf->GetY()+20);
+        $this->pdf->SetY($this->pdf->GetY()+10);
         $this->pdf->SetFont('Times', 'B', 12);
         $this->pdf->Cell(200, 10, utf8_decode('Description'), 1, 0, 'L');
         $this->pdf->Cell(80, 10, utf8_decode('Montant'), 1, 0, 'C');

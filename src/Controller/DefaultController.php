@@ -214,6 +214,7 @@ class DefaultController extends AbstractFOSRestController
      * @Rest\Post("/v1/transactions", name="app_transactions_new")
      * @param Request $request
      * @return Response
+     * @throws \Exception
      */
     public function createTransaction(Request $request): Response
     {
@@ -415,6 +416,7 @@ class DefaultController extends AbstractFOSRestController
         $transaction = $this->transactionRepository->find($id);
         $tauxexhange=$this->tauxechangeRepository->findOneBy(['zone'=>$transaction->getCountry()->getZone()]);
        $subtotal=($tauxexhange->getMontant()*$transaction->getMontant())/100 +($transaction->getMontant()+$transaction->getFraisenvoi());
+      //  $fmt = numfmt_create( 'de_DE', NumberFormatter::DECIMAL );
         $arrays = [
             'numero' => $transaction->getNumerotransaction(),
             'datecreation' => $transaction->getDatetransaction()->format('d-m-Y h:m'),
@@ -423,6 +425,7 @@ class DefaultController extends AbstractFOSRestController
             'exp_phone' => $transaction->getCustomer()->getPhone(),
             'exp_idcard' => $transaction->getCustomer()->getNumeropiece(),
             'exp_pays' => $transaction->getCustomer()->getCountry(),
+            'typeidentification' => $transaction->getCustomer()->getTypeidentification(),
             'beneficiare' => $transaction->getBeneficiare()->getFirstname() . ' ' . $transaction->getBeneficiare()->getLastname(),
             'b_pays' => $transaction->getCountry()->getLibelle(),
             'b_phone' => $transaction->getBeneficiare()->getPhone(),

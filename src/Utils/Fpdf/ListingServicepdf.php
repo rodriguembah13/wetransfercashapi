@@ -81,6 +81,7 @@ class ListingServicepdf
     }
     function bodyRecupaiement($data)
     {
+
         $configuration = $this->configurationRepository->findOneByLast();
         $this->pdf->SetFont('Times', '', 8);
         $path = "logo.png";
@@ -105,13 +106,13 @@ class ListingServicepdf
         $this->pdf->Ln();
         $this->pdf->Cell(40, 5, utf8_decode('Téléphone : '.$data['exp_phone']), 0, 0, 'L');
         $this->pdf->Ln();
-        $this->pdf->Cell(40, 5, utf8_decode('Pièce d\'identité: Carte National d\'Identité :'.$data['exp_idcard']), 0, 0, 'L');
+        $this->pdf->Cell(40, 5, utf8_decode(utf8_decode($data['typeidentification']).':'.$data['exp_idcard']), 0, 0, 'L');
         $this->pdf->Ln();
-        $this->pdf->Cell(40, 5, utf8_decode('Pays:'.$data['exp_pays']), 0, 0, 'L');
+      //  $this->pdf->Cell(40, 5, utf8_decode('Pays:'.$data['exp_pays']), 0, 0, 'L');
         $this->pdf->Ln();
         $this->pdf->SetFont('Times', 'B', 14);
         $this->pdf->SetXY(120, $y1 + 5);
-        $this->pdf->MultiCell(80, 6, utf8_decode('Bénéficiaire :'.$data['beneficiare']), 0, 'J');
+        $this->pdf->MultiCell(80, 6, utf8_decode('Bénéficiaire :'.$data['beneficiare']), 0, 'L');
        // $this->pdf->Ln();
         $this->pdf->SetXY(120, $this->pdf->GetY());
         $this->pdf->SetFont('Times', '', 12);
@@ -130,7 +131,7 @@ class ListingServicepdf
         $this->pdf->SetFont('Times', 'B', 14);
         $this->pdf->Cell(40, 5, utf8_decode('Détail du transfert'), 0, 'J');
         $this->pdf->Ln();
-        $this->pdf->SetFont('Times', '', 12);
+        $this->pdf->SetFont('Times', 'B', 12);
         $this->pdf->SetXY(220, $this->pdf->GetY());
         $this->pdf->Cell(40, 5, utf8_decode('Agent :'.$data['agent']), 0, 0, 'L');
         $this->pdf->Ln();
@@ -138,7 +139,7 @@ class ListingServicepdf
         $this->pdf->Cell(40, 5, utf8_decode('Type transfert :'.$data['typetransaction']), 0, 0, 'L');
         $this->pdf->Ln();
         $this->pdf->SetXY(220, $this->pdf->GetY());
-        $this->pdf->Cell(40, 5, utf8_decode('Wallet : '.$data['wallet']), 0, 0, 'L');
+       // $this->pdf->Cell(40, 5, utf8_decode('Wallet : '.$data['wallet']), 0, 0, 'L');
         $this->pdf->Ln();
         $this->pdf->SetY($this->pdf->GetY()+20);
         $this->pdf->SetFont('Times', 'B', 12);
@@ -171,7 +172,7 @@ class ListingServicepdf
         $this->pdf->SetY($this->pdf->GetY()+5);
         $this->pdf->SetFont('Times', 'B', 14);
         $this->pdf->Cell(80, 10, "Signature du client", 0, 0, 'C');
-        $this->pdf->Cell(180, 10, "Signature caisse", 0, 0, 'R');
+        $this->pdf->Cell(180, 10, "Signature", 0, 0, 'R');
         $this->pdf->RoundedRect(3, 3, 290, 203, 3.5);
     }
     public function initRecuScolarite($rows)
